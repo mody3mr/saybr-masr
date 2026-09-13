@@ -3,24 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مراجعة النشر - سايبر مصر</title>
-    <link rel="stylesheet" href="../style.css?v=13">
+    <title>لوحة التحكم - سايبر مصر</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=1">
 </head>
-<body>
-    <div id="toast-container" class="toast-container"></div>
-    <header class="top-header">
-        <div class="header-right"><button id="menu-toggle" type="button" onclick="toggleSidebar()" aria-label="فتح أو إغلاق القائمة"><i class="fas fa-bars"></i></button><div class="top-links"><a href="../main.html">الرئيسية</a><a href="../settings.html">الإعدادات</a><a href="../publish.html">طلب نشر</a></div></div>
-        <div class="header-search"><i class="fas fa-search"></i><input type="text" id="global-search" placeholder="ابحث في جميع المواضيع والأقسام..." onkeyup="handleGlobalSearch(event)"></div>
-        <div class="header-left"><div class="notification-bell" onclick="toggleNotifications()"><i class="fas fa-bell"></i><span class="badge" id="noti-count">0</span><div class="dropdown-menu" id="noti-dropdown" style="width: 280px; left: -100px;"><div class="noti-header">آخر الإشعارات</div><div id="noti-list" class="noti-list"><div class="empty-message">جاري تحميل الإشعارات...</div></div></div></div><div class="user-profile" onclick="toggleDropdown()"><span id="display-username">جاري التحميل...</span><i class="fas fa-user-circle"></i><div class="dropdown-menu" id="user-dropdown"><a href="../settings.html"><i class="fas fa-cog"></i> الإعدادات</a><a href="../publish.html"><i class="fas fa-paper-plane"></i> طلب نشر</a><a href="../dashboard/index.html" class="admin-only-link"><i class="fas fa-shield-alt"></i> مراجعة النشر</a><a href="#" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> تسجيل خروج</a></div></div></div>
-    </header>
-    <nav id="sidebar" class="sidebar"><ul id="dynamic-tabs"><li><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</li></ul></nav>
-    <main class="content-area"><section id="admin-dashboard-page" class="admin-dashboard-page">
-        <div class="page-heading"><h1><i class="fas fa-shield-halved"></i> مراجعة طلبات النشر</h1><p>راجع بيانات الأعضاء والمشرفين، ثم وافق على المحتوى أو ارفضه قبل ظهوره.</p></div>
-        <div id="admin-access-message" class="access-message" style="display:none"></div>
-        <div id="publish-requests-list" class="request-list"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><span>جاري تحميل الطلبات...</span></div></div>
-    </section></main>
-    <footer><div id="dynamic-footer-content" class="dynamic-footer"></div><div class="copyright">تم الانشاء بواسطة <a href="https://wa.me/201094264206" target="_blank" class="dev-link">محمد عمرو ابراهيم</a> © 2026</div></footer>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script><script src="../app.js?v=13"></script>
+<body class="dashboard-body">
+    <div id="dashboard-toast" class="dashboard-toast" aria-live="polite"></div>
+
+    <section id="dashboard-login" class="dashboard-login-screen">
+        <div class="login-panel">
+            <div class="brand-mark" aria-hidden="true">SM</div>
+            <p class="eyebrow">SAYBR MASR / CONTROL</p>
+            <h1>تسجيل دخول الإدارة</h1>
+            <p class="login-description">هذه البوابة مستقلة عن المتجر ومخصصة للحسابات الإدارية المعتمدة فقط.</p>
+
+            <form id="dashboard-login-form" class="dashboard-form">
+                <label for="dashboard-email">البريد الإلكتروني</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                    <input id="dashboard-email" type="email" autocomplete="username" placeholder="admin@example.com" required>
+                </div>
+
+                <label for="dashboard-password">كلمة المرور</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                    <input id="dashboard-password" type="password" autocomplete="current-password" placeholder="أدخل كلمة المرور" required>
+                </div>
+
+                <button class="primary-button" type="submit">
+                    <i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>
+                    دخول آمن
+                </button>
+                <p id="dashboard-login-error" class="form-error" role="alert"></p>
+            </form>
+        </div>
+    </section>
+
+    <div id="dashboard-app" class="dashboard-app" hidden>
+        <header class="dashboard-header">
+            <div class="dashboard-brand">
+                <div class="brand-mark small" aria-hidden="true">SM</div>
+                <div>
+                    <strong>سايبر مصر</strong>
+                    <span>لوحة التحكم</span>
+                </div>
+            </div>
+            <div class="dashboard-header-actions">
+                <span id="dashboard-user-name" class="signed-in-user">جاري التحقق...</span>
+                <button id="dashboard-logout" class="icon-button" type="button" title="تسجيل الخروج" aria-label="تسجيل الخروج">
+                    <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="dashboard-layout">
+            <aside class="dashboard-sidebar" aria-label="تنقل لوحة التحكم">
+                <div class="sidebar-label">الإدارة</div>
+                <button class="dashboard-nav active" type="button" data-section="overview-section">
+                    <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                    <span>نظرة عامة</span>
+                </button>
+                <button class="dashboard-nav" type="button" data-section="requests-section">
+                    <i class="fa-solid fa-inbox" aria-hidden="true"></i>
+                    <span>طلبات المحتوى</span>
+                    <b id="pending-count-badge" class="nav-badge">0</b>
+                </button>
+                <div class="sidebar-footer">بوابة مستقلة للإدارة</div>
+            </aside>
+
+            <main class="dashboard-main">
+                <section id="overview-section" class="dashboard-section active-section">
+                    <div class="section-heading">
+                        <div>
+                            <p class="eyebrow">CONTROL CENTER</p>
+                            <h1>نظرة عامة</h1>
+                            <p>متابعة سريعة لحالة المنصة وبياناتها الإدارية.</p>
+                        </div>
+                        <span class="security-status"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> اتصال إداري مؤمّن</span>
+                    </div>
+
+                    <div class="stats-grid">
+                        <article class="stat-card">
+                            <span class="stat-icon cyan"><i class="fa-solid fa-users" aria-hidden="true"></i></span>
+                            <div><span>إجمالي الأعضاء</span><strong id="stat-users">--</strong></div>
+                        </article>
+                        <article class="stat-card">
+                            <span class="stat-icon violet"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
+                            <div><span>الأقسام</span><strong id="stat-categories">--</strong></div>
+                        </article>
+                        <article class="stat-card">
+                            <span class="stat-icon amber"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></span>
+                            <div><span>طلبات قيد المراجعة</span><strong id="stat-pending">--</strong></div>
+                        </article>
+                    </div>
+
+                    <section class="dashboard-panel welcome-panel">
+                        <div class="panel-icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div>
+                        <div>
+                            <h2>مرحباً بك في لوحة الإدارة</h2>
+                            <p>تم فصل هذه البوابة عن ملفات المتجر بالكامل. أي حماية إضافية أو صلاحيات جديدة يمكن إضافتها هنا دون تعديل واجهة المتجر.</p>
+                        </div>
+                    </section>
+                </section>
+
+                <section id="requests-section" class="dashboard-section" hidden>
+                    <div class="section-heading">
+                        <div>
+                            <p class="eyebrow">CONTENT REVIEW</p>
+                            <h1>طلبات المحتوى</h1>
+                            <p>راجع المحتوى قبل ظهوره للأعضاء وسجّل قرار الإدارة مع صاحب الطلب.</p>
+                        </div>
+                    </div>
+                    <div id="requests-list" class="requests-list">
+                        <div class="empty-state"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i><span>جاري تحميل الطلبات...</span></div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="app-config.js?v=1"></script>
+    <script src="app.js?v=1"></script>
 </body>
 </html>
