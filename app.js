@@ -24,7 +24,11 @@ function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     
-    const icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-exclamation-circle"></i>';
+    const icon = type === 'success'
+        ? '<i class="fas fa-check-circle"></i>'
+        : type === 'info'
+            ? '<i class="fas fa-info-circle"></i>'
+            : '<i class="fas fa-exclamation-circle"></i>';
     toast.innerHTML = `${icon} <span>${message}</span>`;
     
     container.appendChild(toast);
@@ -149,6 +153,97 @@ function handleLogout() {
     auth.signOut().then(() => window.location.href = "index.html");
 }
 
+function roleLabel(role) {
+    if (role === 'admin') return 'مشرف';
+    if (role === 'moderator') return 'مراقب';
+    return 'عضو';
+}
+
+function formatAccountDate(value) {
+    if (!value) return 'غير متاح';
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return 'غير متاح';
+
+    return date.toLocaleDateString('ar-EG', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+function loadSettingsPage(user) {
+    const settingsPage = document.getElementById('settings-page');
+    if (!settingsPage) return;
+
+    const userRef = db.ref('users/' + user.uid);
+    userRef.once('value').then((snapshot) => {
+        const userData = snapshot.val() || {};
+        const nameInput = document.getElementById('settingsName');
+        const bioInput = document.getElementById('settingsBio');
+        const phoneInput = document.getElementById('settingsPhone');
+        const emailInput = document.getElementById('settingsEmail');
+        const roleValue = document.getElementById('settingsRole');
+        const createdValue = document.getElementById('settingsCreatedAt');
+
+        if (nameInput) nameInput.value = userData.name || user.displayName || '';
+        if (bioInput) bioInput.value = userData.bio || '';
+        if (phoneInput) phoneInput.value = userData.phone || 'غير مسجل';
+        if (emailInput) emailInput.value = user.email || userData.email || 'غير متاح';
+        if (roleValue) roleValue.innerText = roleLabel(userData.role);
+        if (createdValue) createdValue.innerText = formatAccountDate(userData.createdAtISO || userData.createdAt);
+    }).catch((error) => {
+        console.error('Profile failed to load:', error);
+        showToast('تعذر تحميل بيانات الحساب حالياً.', 'error');
+    });
+}
+
+function saveProfileSettings() {
+    const user = auth.currentUser;
+    const nameInput = document.getElementById('settingsName');
+    const bioInput = document.getElementById('settingsBio');
+    const saveButton = document.getElementById('save-settings-button');
+
+    if (!user || !nameInput || !bioInput || !saveButton) return;
+
+    const name = nameInput.value.trim();
+    const bio = bioInput.value.trim();
+
+    if (!name) {
+        showToast('اكتب الاسم قبل حفظ التعديلات.', 'error');
+        nameInput.focus();
+        return;
+    }
+
+    const originalText = saveButton.innerHTML;
+    saveButton.disabled = true;
+    saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+
+    user.updateProfile({ displayName: name })
+        .then(() => db.ref('users/' + user.uid).update({
+            name: name,
+            bio: bio,
+            updatedAt: firebase.database.ServerValue.TIMESTAMP
+        }))
+        .then(() => {
+            const displayUsername = document.getElementById('display-username');
+            if (displayUsername) displayUsername.innerText = name;
+            showToast('تم حفظ بيانات الحساب بنجاح.', 'success');
+        })
+        .catch((error) => {
+            console.error('Profile update failed:', error);
+            showToast('تعذر حفظ التعديلات. تحقق من اتصال Firebase وقواعد الصلاحيات.', 'error');
+        })
+        .finally(() => {
+            saveButton.disabled = false;
+            saveButton.innerHTML = originalText;
+        });
+}
+
+function openPublishRequest() {
+    showToast('زر طلب النشر جاهز، وسيتم تفعيل الإرسال بعد ربطه بمراجعة وموافقة الأدمن.', 'info');
+}
+
 function loadSidebarCategories() {
     const tabsList = document.getElementById('dynamic-tabs');
     if (!tabsList) return;
@@ -255,6 +350,8 @@ auth.onAuthStateChanged((user) => {
             }).catch(() => {
                 document.getElementById('display-username').innerText = user.displayName || 'المستخدم';
             });
+
+            loadSettingsPage(user);
         }
     } else {
         if (!isLoginPage) window.location.href = "index.html";
@@ -278,11 +375,12 @@ function toggleNotifications() {
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-area');
+    if (!sidebar || !content) return;
 
     if (window.innerWidth > 992) {
         sidebar.classList.remove('active');
         const isClosed = sidebar.classList.toggle('closed');
-        content.style.marginRight = isClosed ? '0' : '260px';
+        content.style.marginRight = isClosed ? '0' : `${sidebar.offsetWidth}px`;
     } else {
         sidebar.classList.remove('closed');
         sidebar.classList.toggle('active');
