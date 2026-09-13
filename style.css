@@ -1,0 +1,71 @@
+/* الأكواد السابقة من ردي الأول توضع هنا... */
+
+/* خلفية خاصة لصفحة تسجيل الدخول */
+.auth-body {
+    background: radial-gradient(circle at center, #1a1a2e 0%, #0f0f13 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* =========================================
+   Responsive Design (Media Queries)
+========================================= */
+
+/* شاشات التابلت (أقل من 992px) */
+@media (max-width: 992px) {
+    .content-area {
+        margin-right: 0; /* إلغاء مساحة القائمة الجانبية */
+    }
+    
+    .sidebar {
+        right: -250px; /* إخفاء القائمة افتراضياً في التابلت والموبايل */
+        z-index: 1000;
+        box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+    }
+
+    /* كلاس بنضيفه بالجافاسكريبت عشان نظهر القائمة */
+    .sidebar.active {
+        right: 0;
+    }
+}
+
+/* شاشات الموبايل (أقل من 768px) */
+@media (max-width: 768px) {
+    .header-center h1 {
+        font-size: 16px; /* تصغير الخط */
+    }
+    
+    .nav-logo {
+        width: 30px;
+    }
+
+    .top-header {
+        padding: 10px;
+    }
+
+    .header-left {
+        gap: 10px;
+    }
+
+    #display-username {
+        display: none; /* إخفاء اسم المستخدم في الموبايل لتوفير مساحة (نكتفي بالأيقونة) */
+    }
+
+    .auth-box {
+        width: 90%;
+        padding: 20px;
+    }
+    
+    footer {
+        padding: 15px 10px;
+    }
+    
+    .footer-links {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+}
