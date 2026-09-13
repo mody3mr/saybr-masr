@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الدخول - سايبر مصر</title>
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=10">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="auth-body">
+
+    <!-- حاوية الإشعارات الاحترافية -->
+    <div id="toast-container" class="toast-container"></div>
 
     <div class="auth-container">
         <div class="auth-box">
@@ -25,7 +29,7 @@
                 <input type="text" id="signupName" placeholder="الاسم بالكامل" required>
                 <input type="tel" id="signupPhone" placeholder="رقم الموبايل" required>
                 <input type="email" id="signupEmail" placeholder="البريد الإلكتروني" required>
-                <input type="password" id="signupPassword" placeholder="كلمة المرور" required>
+                <input type="password" id="signupPassword" placeholder="كلمة المرور (6 أحرف على الأقل)" required>
                 <button onclick="registerUser()">إنشاء حساب</button>
                 <p class="auth-switch">لديك حساب بالفعل؟ <a href="#" onclick="toggleAuthMode('login')">تسجيل الدخول</a></p>
             </div>
