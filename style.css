@@ -98,6 +98,23 @@ body {
     box-shadow: 0 0 15px var(--primary-neon);
 }
 
+.auth-switch {
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.auth-switch a {
+    color: var(--secondary-neon);
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.auth-switch a:hover {
+    color: var(--primary-neon);
+}
+
 .top-header {
     display: flex;
     justify-content: space-between;
@@ -278,7 +295,6 @@ footer {
         right: -250px; 
         box-shadow: -5px 0 15px rgba(0,0,0,0.5);
     }
-
     .sidebar.active {
         right: 0;
     }
@@ -288,32 +304,25 @@ footer {
     .header-center h1 {
         font-size: 16px; 
     }
-    
     .nav-logo {
         width: 30px;
     }
-
     .top-header {
         padding: 10px;
     }
-
     .header-left {
         gap: 10px;
     }
-
     #display-username {
         display: none; 
     }
-
     .auth-box {
         width: 90%;
         padding: 20px;
     }
-    
     footer {
         padding: 15px 10px;
     }
-    
     .footer-links {
         display: flex;
         flex-direction: column;
