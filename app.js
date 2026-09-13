@@ -68,38 +68,54 @@ function handleLogout() {
     });
 }
 
-// دالة لتحميل الأقسام اللي طلبتها عشان الشكل يبقى احترافي
+// دالة جلب الأقسام من الفايربيس (ديناميكي 100%)
 function loadSidebarCategories() {
     const tabsList = document.getElementById('dynamic-tabs');
     if (!tabsList) return;
 
-    // الأقسام بناءً على طلبك في المشروع
-    const categories = [
-        { id: 'windows-fixes', name: 'مشاكل وحلول الويندوز', icon: 'fa-wrench' },
-        { id: 'windows-iso', name: 'نسخ الويندوز', icon: 'fa-windows' },
-        { id: 'games-fixes', name: 'مشاكل الألعاب وحلولها', icon: 'fa-gamepad' },
-        { id: 'programs', name: 'البرامج والتعريفات', icon: 'fa-box-open' },
-        { id: 'servers', name: 'سيرفرات السايبر', icon: 'fa-server' },
-        { id: 'paid-free', name: 'برامج مدفوعة مجاناً', icon: 'fa-gift' },
-        { id: 'code-scripts', name: 'أكواد برمجية (bat.)', icon: 'fa-code' },
-        { id: 'trusted-sellers', name: 'أشخاص موثوقين للشحن', icon: 'fa-user-shield' }
-    ];
+    // بنقرأ من الفايربيس من مسار اسمه 'categories'
+    db.ref('categories').on('value', (snapshot) => {
+        tabsList.innerHTML = ''; 
+        
+        if (snapshot.exists()) {
+            snapshot.forEach((childSnapshot) => {
+                const cat = childSnapshot.val();
+                const li = document.createElement('li');
+                // لو مفيش أيقونة في الداش بورد هنحط أيقونة افتراضية
+                const icon = cat.icon ? cat.icon : 'fa-folder';
+                li.innerHTML = `<i class="fas ${icon}"></i> <span>${cat.name}</span>`;
+                
+                li.onclick = () => {
+                    document.getElementById('content-container').innerHTML = `
+                        <div class="content-card">
+                            <h2><i class="fas ${icon}"></i> ${cat.name}</h2>
+                            <p>جاري سحب محتوى هذا القسم من قاعدة البيانات...</p>
+                        </div>
+                    `;
+                };
+                tabsList.appendChild(li);
+            });
+        } else {
+            // لو قاعدة البيانات لسه فاضية ومفيش أقسام اتضافت من الداش بورد
+            tabsList.innerHTML = '<div class="empty-message">لم يتم إضافة أقسام بعد. سيتم إضافتها من لوحة التحكم.</div>';
+        }
+    });
+}
 
-    tabsList.innerHTML = ''; // مسح "جاري التحميل"
-    
-    categories.forEach(cat => {
-        const li = document.createElement('li');
-        li.innerHTML = `<i class="fas ${cat.icon}"></i> <span>${cat.name}</span>`;
-        // لما يضغط على القسم، نعرض محتوى تجريبي احترافي في النص
-        li.onclick = () => {
-            document.getElementById('content-container').innerHTML = `
-                <div class="content-card">
-                    <h2><i class="fas ${cat.icon}"></i> ${cat.name}</h2>
-                    <p>هذا هو قسم <strong>${cat.name}</strong>. سيتم إضافة الشروحات، الفيديوهات، والملفات الخاصة بهذا القسم قريباً من خلال لوحة التحكم.</p>
-                </div>
-            `;
-        };
-        tabsList.appendChild(li);
+// دالة جلب بيانات الفوتر من الفايربيس
+function loadFooterData() {
+    const footerContainer = document.getElementById('dynamic-footer-content');
+    if (!footerContainer) return;
+
+    db.ref('settings/footer').on('value', (snapshot) => {
+        if (snapshot.exists()) {
+            // هنعرض الداتا اللي هتحطها من الداش بورد
+            const footerHtml = snapshot.val().htmlContent; 
+            footerContainer.innerHTML = footerHtml;
+        } else {
+            // لو فاضي مش هنعرض حاجة لحد ما تملاه
+            footerContainer.innerHTML = '';
+        }
     });
 }
 
@@ -112,10 +128,11 @@ auth.onAuthStateChanged((user) => {
         if (isLoginPage) {
             window.location.href = "main.html";
         } else {
-            // تحميل الأقسام
+            // تشغيل الدوال الديناميكية
             loadSidebarCategories();
+            loadFooterData();
 
-            // جلب اسم المستخدم وعرضه بشكل آمن (عشان ميعلقش)
+            // جلب اسم المستخدم
             db.ref('/users/' + user.uid).once('value').then((snapshot) => {
                 const userData = snapshot.val();
                 if (userData && userData.name) {
