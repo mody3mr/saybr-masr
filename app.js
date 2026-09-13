@@ -153,8 +153,12 @@ function loadSidebarCategories() {
     const tabsList = document.getElementById('dynamic-tabs');
     if (!tabsList) return;
 
+    const renderNoCategories = () => {
+        tabsList.innerHTML = '<li class="sidebar-empty">لا توجد أقسام حالياً.</li>';
+    };
+
     db.ref('categories').on('value', (snapshot) => {
-        tabsList.innerHTML = ''; 
+        tabsList.innerHTML = '';
         if (snapshot.exists()) {
             snapshot.forEach((childSnapshot) => {
                 const cat = childSnapshot.val();
@@ -173,8 +177,11 @@ function loadSidebarCategories() {
                 tabsList.appendChild(li);
             });
         } else {
-            tabsList.innerHTML = '<div class="empty-message">لم يتم إضافة أقسام بعد. سيتم إضافتها من لوحة التحكم.</div>';
+            renderNoCategories();
         }
+    }, (error) => {
+        console.error('Categories failed to load:', error);
+        renderNoCategories();
     });
 }
 
@@ -271,10 +278,14 @@ function toggleNotifications() {
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-area');
-    sidebar.classList.toggle('active');
-    
+
     if (window.innerWidth > 992) {
-        if (sidebar.classList.contains('active')) content.style.marginRight = '260px';
-        else content.style.marginRight = '0';
+        sidebar.classList.remove('active');
+        const isClosed = sidebar.classList.toggle('closed');
+        content.style.marginRight = isClosed ? '0' : '260px';
+    } else {
+        sidebar.classList.remove('closed');
+        sidebar.classList.toggle('active');
+        content.style.marginRight = '0';
     }
 }
