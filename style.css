@@ -27,6 +27,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    margin: 0;
 }
 
 .auth-container {
@@ -34,6 +35,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 20px;
 }
 
 .auth-box {
@@ -44,17 +46,28 @@ body {
     box-shadow: 0 0 20px rgba(162, 0, 255, 0.2);
     border: 1px solid rgba(162, 0, 255, 0.3);
     width: 350px;
+    max-width: 100%;
 }
 
 .auth-logo {
     width: 120px;
+    height: 120px;
+    object-fit: cover;
     border-radius: 50%;
     margin-bottom: 20px;
     box-shadow: 0 0 15px var(--secondary-neon);
+    background-color: #333; /* لون مؤقت في حال تأخر تحميل الصورة */
+}
+
+.auth-box h2 {
+    margin-bottom: 20px;
+    font-size: 22px;
+    color: white;
 }
 
 .auth-box input {
     width: 100%;
+    display: block; /* لضمان نزولهم تحت بعض */
     padding: 12px;
     margin: 10px 0;
     border-radius: 8px;
@@ -63,9 +76,15 @@ body {
     color: white;
 }
 
+.auth-box input::placeholder {
+    color: #999;
+}
+
 .auth-box button {
     width: 100%;
+    display: block; /* لضمان نزول الزر تحت الحقول */
     padding: 12px;
+    margin-top: 15px;
     background: linear-gradient(45deg, var(--primary-neon), var(--secondary-neon));
     border: none;
     border-radius: 8px;
@@ -80,7 +99,9 @@ body {
     box-shadow: 0 0 15px var(--primary-neon);
 }
 
-/* الهيدر */
+/* =========================================
+   باقي أكواد الموقع (الهيدر، القائمة، الفوتر)
+========================================= */
 .top-header {
     display: flex;
     justify-content: space-between;
@@ -170,7 +191,6 @@ body {
     cursor: pointer;
 }
 
-/* القائمة الجانبية والمحتوى */
 .sidebar {
     width: 250px;
     height: calc(100vh - 65px);
@@ -228,7 +248,6 @@ body {
     transition: 0.3s;
 }
 
-/* الفوتر */
 footer {
     background: var(--bg-panel);
     text-align: center;
@@ -253,10 +272,6 @@ footer {
     text-shadow: 0 0 5px rgba(162, 0, 255, 0.5);
     text-decoration: none;
 }
-
-/* =========================================
-   التوافق مع الشاشات (Responsive)
-========================================= */
 
 @media (max-width: 992px) {
     .content-area {
