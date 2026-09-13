@@ -38,7 +38,7 @@ function toggleDropdown() {
     dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
 }
 
-// إظهار وإخفاء القائمة الجانبية (متوافقة مع الموبايل والديسك توب)
+// إظهار وإخفاء القائمة الجانبية
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const content = document.querySelector('.content-area');
