@@ -12,12 +12,12 @@
     <header class="top-header">
         <div class="header-right">
             <button id="menu-toggle" type="button" onclick="toggleSidebar()" aria-label="فتح أو إغلاق القائمة"><i class="fas fa-bars"></i></button>
-            <div class="top-links"><a href="main.html">الرئيسية</a><a href="#about">من نحن</a><a href="#contact">تواصل معنا</a></div>
+            <div class="top-links"><a href="main.html">الرئيسية</a><a href="AboutUs.html">من نحن</a><a href="ContactUs.html">تواصل معنا</a></div>
         </div>
         <div class="header-search"><i class="fas fa-search"></i><input type="text" id="global-search" placeholder="ابحث في جميع المواضيع والأقسام..." onkeyup="handleGlobalSearch(event)"></div>
         <div class="header-left">
             <div class="notification-bell" onclick="toggleNotifications()"><i class="fas fa-bell"></i><span class="badge" id="noti-count">0</span><div class="dropdown-menu" id="noti-dropdown" style="width: 280px; left: -100px;"><div class="noti-header">آخر الإشعارات</div><div id="noti-list" class="noti-list"><div class="empty-message">جاري تحميل الإشعارات...</div></div></div></div>
-            <div class="user-profile" onclick="toggleDropdown()"><span id="display-username">جاري التحميل...</span><i class="fas fa-user-circle"></i><div class="dropdown-menu" id="user-dropdown"><a href="settings.html"><i class="fas fa-cog"></i> الإعدادات</a><a href="publish.html"><i class="fas fa-paper-plane"></i> طلب نشر</a><a href="dashboard/index.html" class="admin-only-link"><i class="fas fa-shield-alt"></i> مراجعة النشر</a><a href="#" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> تسجيل خروج</a></div></div>
+            <div class="user-profile" onclick="toggleDropdown()"><span id="display-username">جاري التحميل...</span><i class="fas fa-user-circle"></i><div class="dropdown-menu" id="user-dropdown"><a href="settings.html"><i class="fas fa-cog"></i> الإعدادات</a><a href="#" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> تسجيل خروج</a></div></div>
         </div>
     </header>
     <nav id="sidebar" class="sidebar"><ul id="dynamic-tabs"><li><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</li></ul></nav>
