@@ -259,7 +259,9 @@ function isAdmin(userData) {
 
 function showAdminLinks(userData) {
     document.querySelectorAll('.admin-only-link').forEach((link) => {
-        link.style.display = isAdmin(userData) ? 'flex' : 'none';
+        link.style.display = isAdmin(userData)
+            ? (link.tagName === 'A' ? 'flex' : 'block')
+            : 'none';
     });
 }
 
@@ -271,12 +273,6 @@ function formatDateTime(value) {
         year: 'numeric', month: 'long', day: 'numeric',
         hour: 'numeric', minute: '2-digit'
     });
-}
-
-function requestStatusLabel(status) {
-    if (status === 'approved') return 'تمت الموافقة';
-    if (status === 'rejected') return 'مرفوض';
-    return 'قيد المراجعة';
 }
 
 function loadPublishPage(user, userData) {
@@ -362,113 +358,6 @@ function submitPublishRequest() {
             submitButton.disabled = false;
             submitButton.innerHTML = originalText;
         });
-}
-
-function loadAdminDashboard(user, userData) {
-    const dashboard = document.getElementById('admin-dashboard-page');
-    if (!dashboard) return;
-
-    const list = document.getElementById('publish-requests-list');
-    const accessMessage = document.getElementById('admin-access-message');
-    if (!isAdmin(userData)) {
-        if (accessMessage) {
-            accessMessage.innerHTML = '<i class="fas fa-lock"></i><span>هذه الصفحة متاحة للمشرفين فقط.</span>';
-            accessMessage.style.display = 'flex';
-        }
-        if (list) list.innerHTML = '';
-        return;
-    }
-    if (accessMessage) accessMessage.style.display = 'none';
-    if (!list) return;
-
-    db.ref('publishRequests').on('value', (snapshot) => {
-        list.innerHTML = '';
-        if (!snapshot.exists()) {
-            list.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><span>لا توجد طلبات نشر حالياً.</span></div>';
-            return;
-        }
-
-        const requests = [];
-        snapshot.forEach((child) => requests.push({ id: child.key, ...(child.val() || {}) }));
-        requests.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-        requests.forEach((request) => {
-            list.insertAdjacentHTML('beforeend', renderPublishRequestCard(request));
-        });
-    }, (error) => {
-        console.error('Publish requests failed to load:', error);
-        list.innerHTML = '<div class="empty-state error-state"><i class="fas fa-triangle-exclamation"></i><span>تعذر تحميل طلبات النشر.</span></div>';
-    });
-}
-
-function renderPublishRequestCard(request) {
-    const status = request.status || 'pending';
-    const actions = status === 'pending' ? `
-        <div class="dashboard-actions">
-            <button class="settings-button" type="button" onclick="reviewPublishRequest('${escapeHTML(request.id)}', 'approved')"><i class="fas fa-check"></i> الموافقة والنشر</button>
-            <button class="danger-button" type="button" onclick="reviewPublishRequest('${escapeHTML(request.id)}', 'rejected')"><i class="fas fa-xmark"></i> رفض الطلب</button>
-        </div>` : '';
-
-    return `
-        <article class="request-card">
-            <div class="request-card-header">
-                <div>
-                    <h2>${escapeHTML(request.title || 'بدون عنوان')}</h2>
-                    <div class="request-meta">
-                        <span><i class="fas fa-user"></i> ${escapeHTML(request.authorName || 'مستخدم')}</span>
-                        <span><i class="fas fa-id-badge"></i> ${escapeHTML(roleLabel(request.authorRole))}</span>
-                        <span><i class="fas fa-folder"></i> ${escapeHTML(request.categoryName || 'عام')}</span>
-                        <span><i class="fas fa-clock"></i> ${escapeHTML(formatDateTime(request.createdAtISO || request.createdAt))}</span>
-                    </div>
-                </div>
-                <span class="status-pill status-${escapeHTML(status)}">${escapeHTML(requestStatusLabel(status))}</span>
-            </div>
-            <div class="request-body">${escapeHTML(request.body || '').replace(/\n/g, '<br>')}</div>
-            ${request.notes ? `<div class="request-notes"><strong>ملاحظات صاحب الطلب:</strong> ${escapeHTML(request.notes)}</div>` : ''}
-            ${actions}
-        </article>`;
-}
-
-function reviewPublishRequest(requestId, nextStatus) {
-    const user = auth.currentUser;
-    if (!user || !requestId || !['approved', 'rejected'].includes(nextStatus)) return;
-
-    db.ref('users/' + user.uid).once('value').then((adminSnapshot) => {
-        const adminData = adminSnapshot.val() || {};
-        if (!isAdmin(adminData)) throw new Error('not-admin');
-        return db.ref('publishRequests/' + requestId).once('value').then((requestSnapshot) => ({
-            adminData,
-            request: requestSnapshot.val()
-        }));
-    }).then(({ adminData, request }) => {
-        if (!request) throw new Error('request-not-found');
-
-        const updates = {};
-        updates['publishRequests/' + requestId + '/status'] = nextStatus;
-        updates['publishRequests/' + requestId + '/reviewedBy'] = user.uid;
-        updates['publishRequests/' + requestId + '/reviewedByName'] = adminData.name || user.displayName || 'مشرف';
-        updates['publishRequests/' + requestId + '/reviewedAt'] = firebase.database.ServerValue.TIMESTAMP;
-        if (nextStatus === 'approved') {
-            const sectionId = request.categoryId || 'general';
-            updates['publishedContent/' + sectionId + '/' + requestId] = {
-                title: request.title || '',
-                body: request.body || '',
-                categoryId: sectionId,
-                categoryName: request.categoryName || 'عام',
-                authorId: request.authorId || '',
-                authorName: request.authorName || 'مستخدم',
-                authorRole: request.authorRole || 'user',
-                publishedAt: firebase.database.ServerValue.TIMESTAMP,
-                publishedAtISO: new Date().toISOString(),
-                sourceRequestId: requestId
-            };
-        }
-        return db.ref().update(updates);
-    }).then(() => {
-        showToast(nextStatus === 'approved' ? 'تمت الموافقة ونشر المحتوى.' : 'تم رفض طلب النشر.', 'success');
-    }).catch((error) => {
-        console.error('Publish review failed:', error);
-        showToast(error.message === 'request-not-found' ? 'طلب النشر غير موجود.' : 'تعذر تحديث حالة الطلب.', 'error');
-    });
 }
 
 function loadSidebarCategories() {
@@ -622,13 +511,11 @@ auth.onAuthStateChanged((user) => {
                 }
                 showAdminLinks(userData);
                 loadPublishPage(user, userData);
-                loadAdminDashboard(user, userData);
             }).catch((error) => {
                 console.error('User profile failed to load:', error);
                 document.getElementById('display-username').innerText = user.displayName || 'المستخدم';
                 showAdminLinks({});
                 loadPublishPage(user, {});
-                loadAdminDashboard(user, {});
             });
 
             loadSettingsPage(user);
