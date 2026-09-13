@@ -1,6 +1,26 @@
-/* الأكواد السابقة من ردي الأول توضع هنا... */
+:root {
+    --bg-dark: #0f0f13;
+    --bg-panel: #1c1c24;
+    --primary-neon: #a200ff;
+    --secondary-neon: #00d4ff;
+    --text-light: #e0e0e0;
+    --text-muted: #888;
+}
 
-/* خلفية خاصة لصفحة تسجيل الدخول */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    overflow-x: hidden;
+}
+
+/* خلفية صفحة تسجيل الدخول */
 .auth-body {
     background: radial-gradient(circle at center, #1a1a2e 0%, #0f0f13 100%);
     display: flex;
@@ -9,32 +29,253 @@
     height: 100vh;
 }
 
+.auth-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-box {
+    background: var(--bg-panel);
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(162, 0, 255, 0.2);
+    border: 1px solid rgba(162, 0, 255, 0.3);
+    width: 350px;
+}
+
+.auth-logo {
+    width: 120px;
+    border-radius: 50%;
+    margin-bottom: 20px;
+    box-shadow: 0 0 15px var(--secondary-neon);
+}
+
+.auth-box input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid var(--text-muted);
+    background: var(--bg-dark);
+    color: white;
+}
+
+.auth-box button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(45deg, var(--primary-neon), var(--secondary-neon));
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.auth-box button:hover {
+    box-shadow: 0 0 15px var(--primary-neon);
+}
+
+/* الهيدر */
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-panel);
+    padding: 10px 20px;
+    border-bottom: 2px solid var(--primary-neon);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.header-center {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-logo {
+    width: 40px;
+    border-radius: 50%;
+}
+
+.header-center h1 {
+    font-size: 20px;
+    text-shadow: 0 0 5px var(--primary-neon);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.notification-bell {
+    position: relative;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.badge {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background: red;
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 50%;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    position: relative;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 35px;
+    left: 0;
+    background: var(--bg-panel);
+    border: 1px solid var(--primary-neon);
+    border-radius: 8px;
+    width: 150px;
+    flex-direction: column;
+    z-index: 100;
+}
+
+.dropdown-menu a {
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+    border-bottom: 1px solid #333;
+}
+
+.dropdown-menu a:hover {
+    background: rgba(162, 0, 255, 0.2);
+}
+
+#menu-toggle {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* القائمة الجانبية والمحتوى */
+.sidebar {
+    width: 250px;
+    height: calc(100vh - 65px);
+    background: var(--bg-panel);
+    position: fixed;
+    right: 0;
+    top: 65px;
+    padding: 20px 10px;
+    border-left: 1px solid #333;
+    transition: 0.3s;
+    z-index: 50;
+}
+
+.search-box {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.search-box i {
+    position: absolute;
+    right: 10px;
+    top: 12px;
+    color: var(--text-muted);
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 30px 10px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--secondary-neon);
+    background: transparent;
+    color: white;
+}
+
+#dynamic-tabs {
+    list-style: none;
+}
+
+#dynamic-tabs li {
+    padding: 15px;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#dynamic-tabs li:hover {
+    background: rgba(162, 0, 255, 0.1);
+    color: var(--secondary-neon);
+}
+
+.content-area {
+    margin-right: 250px;
+    padding: 30px;
+    min-height: calc(100vh - 120px);
+    transition: 0.3s;
+}
+
+/* الفوتر */
+footer {
+    background: var(--bg-panel);
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid var(--primary-neon);
+}
+
+.footer-links a, .social-icons a {
+    color: var(--secondary-neon);
+    margin: 0 10px;
+    text-decoration: none;
+}
+
+.copyright {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.dev-link {
+    color: var(--primary-neon);
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(162, 0, 255, 0.5);
+    text-decoration: none;
+}
+
 /* =========================================
-   Responsive Design (Media Queries)
+   التوافق مع الشاشات (Responsive)
 ========================================= */
 
-/* شاشات التابلت (أقل من 992px) */
 @media (max-width: 992px) {
     .content-area {
-        margin-right: 0; /* إلغاء مساحة القائمة الجانبية */
+        margin-right: 0; 
     }
     
     .sidebar {
-        right: -250px; /* إخفاء القائمة افتراضياً في التابلت والموبايل */
-        z-index: 1000;
+        right: -250px; 
         box-shadow: -5px 0 15px rgba(0,0,0,0.5);
     }
 
-    /* كلاس بنضيفه بالجافاسكريبت عشان نظهر القائمة */
     .sidebar.active {
         right: 0;
     }
 }
 
-/* شاشات الموبايل (أقل من 768px) */
 @media (max-width: 768px) {
     .header-center h1 {
-        font-size: 16px; /* تصغير الخط */
+        font-size: 16px; 
     }
     
     .nav-logo {
@@ -50,7 +291,7 @@
     }
 
     #display-username {
-        display: none; /* إخفاء اسم المستخدم في الموبايل لتوفير مساحة (نكتفي بالأيقونة) */
+        display: none; 
     }
 
     .auth-box {
