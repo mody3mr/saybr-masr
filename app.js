@@ -12,6 +12,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
+let isCompletingSignup = false;
 
 // =========================================
 // نظام الإشعارات الذكية (Toasts)
@@ -47,9 +48,9 @@ function toggleAuthMode(mode) {
 
 // التسجيل الاحترافي
 function registerUser() {
-    const name = document.getElementById('signupName').value;
-    const phone = document.getElementById('signupPhone').value;
-    const email = document.getElementById('signupEmail').value;
+    const name = document.getElementById('signupName').value.trim();
+    const phone = document.getElementById('signupPhone').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
     const password = document.getElementById('signupPassword').value;
 
     if (!name || !phone || !email || !password) {
@@ -60,27 +61,43 @@ function registerUser() {
     const originalText = btn.innerText;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإنشاء...';
     btn.disabled = true;
+    isCompletingSignup = true;
 
     auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
             const user = userCredential.user;
+            const userRef = db.ref('users/' + user.uid);
+            const userData = {
+                uid: user.uid,
+                name: name,
+                phone: phone,
+                email: email,
+                role: 'user',
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                createdAtISO: new Date().toISOString()
+            };
+
             return user.updateProfile({ displayName: name }).then(() => {
-                return db.ref('users/' + user.uid).set({
-                    name: name,
-                    phone: phone,
-                    email: email,
-                    role: 'user',
-                    createdAt: new Date().toISOString()
+                return userRef.set(userData);
+            }).then(() => {
+                // تأكيد أن البيانات وصلت فعليًا إلى Realtime Database قبل التحويل.
+                return userRef.once('value').then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        throw new Error('database/verification-failed');
+                    }
                 });
             });
         })
         .then(() => {
+            isCompletingSignup = false;
             showToast("تم إنشاء الحساب بنجاح! جاري تحويلك...", "success");
             setTimeout(() => {
                 window.location.href = "main.html";
             }, 2000);
         })
         .catch((error) => {
+            isCompletingSignup = false;
+            console.error('Signup failed:', error);
             btn.innerHTML = originalText;
             btn.disabled = false;
             
@@ -91,6 +108,10 @@ function registerUser() {
                 errorMsg = "كلمة المرور ضعيفة! يجب أن لا تقل عن 6 أحرف.";
             } else if (error.code === 'auth/invalid-email') {
                 errorMsg = "صيغة البريد الإلكتروني غير صحيحة.";
+            } else if (error.code === 'PERMISSION_DENIED' || error.code === 'database/permission-denied') {
+                errorMsg = "تم إنشاء الحساب، لكن قاعدة البيانات رفضت حفظ بيانات المستخدم. راجع Firebase Database Rules.";
+            } else if (error.message === 'database/verification-failed') {
+                errorMsg = "لم يتم تأكيد حفظ بيانات المستخدم في قاعدة البيانات. تحقق من اتصال Firebase وقواعد Realtime Database.";
             }
             showToast(errorMsg, "error");
         });
@@ -208,6 +229,7 @@ auth.onAuthStateChanged((user) => {
 
     if (user) {
         if (isLoginPage) {
+            if (isCompletingSignup) return;
             window.location.href = "main.html";
         } else {
             loadSidebarCategories();
