@@ -241,7 +241,234 @@ function saveProfileSettings() {
 }
 
 function openPublishRequest() {
-    showToast('زر طلب النشر جاهز، وسيتم تفعيل الإرسال بعد ربطه بمراجعة وموافقة الأدمن.', 'info');
+    window.location.href = 'publish.html';
+}
+
+function escapeHTML(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function isAdmin(userData) {
+    return userData && userData.role === 'admin';
+}
+
+function showAdminLinks(userData) {
+    document.querySelectorAll('.admin-only-link').forEach((link) => {
+        link.style.display = isAdmin(userData) ? 'flex' : 'none';
+    });
+}
+
+function formatDateTime(value) {
+    if (!value) return 'غير متاح';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return 'غير متاح';
+    return date.toLocaleString('ar-EG', {
+        year: 'numeric', month: 'long', day: 'numeric',
+        hour: 'numeric', minute: '2-digit'
+    });
+}
+
+function requestStatusLabel(status) {
+    if (status === 'approved') return 'تمت الموافقة';
+    if (status === 'rejected') return 'مرفوض';
+    return 'قيد المراجعة';
+}
+
+function loadPublishPage(user, userData) {
+    const publishPage = document.getElementById('publish-page');
+    if (!publishPage) return;
+
+    const authorName = document.getElementById('publishAuthorName');
+    const authorRole = document.getElementById('publishAuthorRole');
+    const categorySelect = document.getElementById('publishCategory');
+    if (authorName) authorName.innerText = userData.name || user.displayName || 'المستخدم';
+    if (authorRole) authorRole.innerText = roleLabel(userData.role);
+
+    if (categorySelect) {
+        db.ref('categories').once('value').then((snapshot) => {
+            categorySelect.innerHTML = '<option value="general" data-name="عام">عام</option>';
+            if (snapshot.exists()) {
+                categorySelect.innerHTML = '';
+                snapshot.forEach((child) => {
+                    const category = child.val() || {};
+                    const option = document.createElement('option');
+                    option.value = child.key;
+                    option.dataset.name = category.name || child.key;
+                    option.textContent = category.name || child.key;
+                    categorySelect.appendChild(option);
+                });
+            }
+        }).catch(() => {
+            categorySelect.innerHTML = '<option value="general" data-name="عام">عام</option>';
+        });
+    }
+}
+
+function submitPublishRequest() {
+    const user = auth.currentUser;
+    const titleInput = document.getElementById('publishTitle');
+    const bodyInput = document.getElementById('publishBody');
+    const notesInput = document.getElementById('publishNotes');
+    const categorySelect = document.getElementById('publishCategory');
+    const submitButton = document.getElementById('submit-publish-button');
+
+    if (!user || !titleInput || !bodyInput || !categorySelect || !submitButton) return;
+    const title = titleInput.value.trim();
+    const body = bodyInput.value.trim();
+    if (!title || !body) {
+        showToast('اكتب عنوان ومحتوى الطلب قبل الإرسال.', 'error');
+        return;
+    }
+
+    const selectedCategory = categorySelect.options[categorySelect.selectedIndex];
+    const originalText = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري إرسال الطلب...';
+
+    db.ref('users/' + user.uid).once('value')
+        .then((snapshot) => {
+            const userData = snapshot.val() || {};
+            const requestRef = db.ref('publishRequests').push();
+            return requestRef.set({
+                title,
+                body,
+                notes: notesInput ? notesInput.value.trim() : '',
+                categoryId: categorySelect.value || 'general',
+                categoryName: selectedCategory ? (selectedCategory.dataset.name || selectedCategory.textContent) : 'عام',
+                authorId: user.uid,
+                authorName: userData.name || user.displayName || 'المستخدم',
+                authorRole: userData.role || 'user',
+                status: 'pending',
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                createdAtISO: new Date().toISOString()
+            });
+        })
+        .then(() => {
+            showToast('تم إرسال طلبك للمراجعة. لن يظهر المحتوى قبل موافقة الأدمن.', 'success');
+            titleInput.value = '';
+            bodyInput.value = '';
+            if (notesInput) notesInput.value = '';
+        })
+        .catch((error) => {
+            console.error('Publish request failed:', error);
+            showToast('تعذر إرسال الطلب. تحقق من صلاحيات Firebase.', 'error');
+        })
+        .finally(() => {
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalText;
+        });
+}
+
+function loadAdminDashboard(user, userData) {
+    const dashboard = document.getElementById('admin-dashboard-page');
+    if (!dashboard) return;
+
+    const list = document.getElementById('publish-requests-list');
+    const accessMessage = document.getElementById('admin-access-message');
+    if (!isAdmin(userData)) {
+        if (accessMessage) {
+            accessMessage.innerHTML = '<i class="fas fa-lock"></i><span>هذه الصفحة متاحة للمشرفين فقط.</span>';
+            accessMessage.style.display = 'flex';
+        }
+        if (list) list.innerHTML = '';
+        return;
+    }
+    if (accessMessage) accessMessage.style.display = 'none';
+    if (!list) return;
+
+    db.ref('publishRequests').on('value', (snapshot) => {
+        list.innerHTML = '';
+        if (!snapshot.exists()) {
+            list.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><span>لا توجد طلبات نشر حالياً.</span></div>';
+            return;
+        }
+
+        const requests = [];
+        snapshot.forEach((child) => requests.push({ id: child.key, ...(child.val() || {}) }));
+        requests.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        requests.forEach((request) => {
+            list.insertAdjacentHTML('beforeend', renderPublishRequestCard(request));
+        });
+    }, (error) => {
+        console.error('Publish requests failed to load:', error);
+        list.innerHTML = '<div class="empty-state error-state"><i class="fas fa-triangle-exclamation"></i><span>تعذر تحميل طلبات النشر.</span></div>';
+    });
+}
+
+function renderPublishRequestCard(request) {
+    const status = request.status || 'pending';
+    const actions = status === 'pending' ? `
+        <div class="dashboard-actions">
+            <button class="settings-button" type="button" onclick="reviewPublishRequest('${escapeHTML(request.id)}', 'approved')"><i class="fas fa-check"></i> الموافقة والنشر</button>
+            <button class="danger-button" type="button" onclick="reviewPublishRequest('${escapeHTML(request.id)}', 'rejected')"><i class="fas fa-xmark"></i> رفض الطلب</button>
+        </div>` : '';
+
+    return `
+        <article class="request-card">
+            <div class="request-card-header">
+                <div>
+                    <h2>${escapeHTML(request.title || 'بدون عنوان')}</h2>
+                    <div class="request-meta">
+                        <span><i class="fas fa-user"></i> ${escapeHTML(request.authorName || 'مستخدم')}</span>
+                        <span><i class="fas fa-id-badge"></i> ${escapeHTML(roleLabel(request.authorRole))}</span>
+                        <span><i class="fas fa-folder"></i> ${escapeHTML(request.categoryName || 'عام')}</span>
+                        <span><i class="fas fa-clock"></i> ${escapeHTML(formatDateTime(request.createdAtISO || request.createdAt))}</span>
+                    </div>
+                </div>
+                <span class="status-pill status-${escapeHTML(status)}">${escapeHTML(requestStatusLabel(status))}</span>
+            </div>
+            <div class="request-body">${escapeHTML(request.body || '').replace(/\n/g, '<br>')}</div>
+            ${request.notes ? `<div class="request-notes"><strong>ملاحظات صاحب الطلب:</strong> ${escapeHTML(request.notes)}</div>` : ''}
+            ${actions}
+        </article>`;
+}
+
+function reviewPublishRequest(requestId, nextStatus) {
+    const user = auth.currentUser;
+    if (!user || !requestId || !['approved', 'rejected'].includes(nextStatus)) return;
+
+    db.ref('users/' + user.uid).once('value').then((adminSnapshot) => {
+        const adminData = adminSnapshot.val() || {};
+        if (!isAdmin(adminData)) throw new Error('not-admin');
+        return db.ref('publishRequests/' + requestId).once('value').then((requestSnapshot) => ({
+            adminData,
+            request: requestSnapshot.val()
+        }));
+    }).then(({ adminData, request }) => {
+        if (!request) throw new Error('request-not-found');
+
+        const updates = {};
+        updates['publishRequests/' + requestId + '/status'] = nextStatus;
+        updates['publishRequests/' + requestId + '/reviewedBy'] = user.uid;
+        updates['publishRequests/' + requestId + '/reviewedByName'] = adminData.name || user.displayName || 'مشرف';
+        updates['publishRequests/' + requestId + '/reviewedAt'] = firebase.database.ServerValue.TIMESTAMP;
+        if (nextStatus === 'approved') {
+            const sectionId = request.categoryId || 'general';
+            updates['publishedContent/' + sectionId + '/' + requestId] = {
+                title: request.title || '',
+                body: request.body || '',
+                categoryId: sectionId,
+                categoryName: request.categoryName || 'عام',
+                authorId: request.authorId || '',
+                authorName: request.authorName || 'مستخدم',
+                authorRole: request.authorRole || 'user',
+                publishedAt: firebase.database.ServerValue.TIMESTAMP,
+                publishedAtISO: new Date().toISOString(),
+                sourceRequestId: requestId
+            };
+        }
+        return db.ref().update(updates);
+    }).then(() => {
+        showToast(nextStatus === 'approved' ? 'تمت الموافقة ونشر المحتوى.' : 'تم رفض طلب النشر.', 'success');
+    }).catch((error) => {
+        console.error('Publish review failed:', error);
+        showToast(error.message === 'request-not-found' ? 'طلب النشر غير موجود.' : 'تعذر تحديث حالة الطلب.', 'error');
+    });
 }
 
 function loadSidebarCategories() {
@@ -262,12 +489,7 @@ function loadSidebarCategories() {
                 li.innerHTML = `<i class="fas ${icon}"></i> <span>${cat.name}</span>`;
                 
                 li.onclick = () => {
-                    document.getElementById('content-container').innerHTML = `
-                        <div class="content-card">
-                            <h2><i class="fas ${icon}"></i> ${cat.name}</h2>
-                            <p>جاري سحب محتوى هذا القسم من قاعدة البيانات...</p>
-                        </div>
-                    `;
+                    loadPublishedSection(childSnapshot.key, cat.name || 'القسم', icon);
                 };
                 tabsList.appendChild(li);
             });
@@ -277,6 +499,57 @@ function loadSidebarCategories() {
     }, (error) => {
         console.error('Categories failed to load:', error);
         renderNoCategories();
+    });
+}
+
+function loadPublishedSection(categoryId, categoryName, icon) {
+    const container = document.getElementById('content-container');
+    if (!container) return;
+    container.innerHTML = `
+        <div class="content-card section-loading">
+            <h2><i class="fas ${escapeHTML(icon)}"></i> ${escapeHTML(categoryName)}</h2>
+            <p>جاري تحميل البيانات المنشورة...</p>
+        </div>`;
+
+    db.ref('publishedContent/' + categoryId).once('value').then((snapshot) => {
+        if (!snapshot.exists()) {
+            container.innerHTML = `
+                <div class="content-card">
+                    <h2><i class="fas ${escapeHTML(icon)}"></i> ${escapeHTML(categoryName)}</h2>
+                    <p>لا توجد بيانات منشورة في هذا القسم حالياً.</p>
+                </div>`;
+            return;
+        }
+
+        const items = [];
+        snapshot.forEach((child) => items.push(child.val() || {}));
+        items.sort((a, b) => (b.publishedAt || 0) - (a.publishedAt || 0));
+        container.innerHTML = `
+            <div class="content-card section-content-card">
+                <h2><i class="fas ${escapeHTML(icon)}"></i> ${escapeHTML(categoryName)}</h2>
+                <div class="published-items"></div>
+            </div>`;
+
+        const list = container.querySelector('.published-items');
+        items.forEach((item) => {
+            const article = document.createElement('article');
+            article.className = 'published-item';
+            article.innerHTML = `
+                <div class="published-item-header">
+                    <h3>${escapeHTML(item.title || 'بدون عنوان')}</h3>
+                    <span>${escapeHTML(formatDateTime(item.publishedAtISO || item.publishedAt))}</span>
+                </div>
+                <p>${escapeHTML(item.body || '').replace(/\n/g, '<br>')}</p>
+                <div class="published-item-meta"><i class="fas fa-user"></i> نشر بواسطة ${escapeHTML(item.authorName || 'مستخدم')} - ${escapeHTML(roleLabel(item.authorRole))}</div>`;
+            list.appendChild(article);
+        });
+    }).catch((error) => {
+        console.error('Published content failed to load:', error);
+        container.innerHTML = `
+            <div class="content-card">
+                <h2><i class="fas fa-triangle-exclamation"></i> تعذر تحميل القسم</h2>
+                <p>تحقق من اتصال Firebase وصلاحيات القراءة.</p>
+            </div>`;
     });
 }
 
@@ -339,7 +612,7 @@ auth.onAuthStateChanged((user) => {
             loadNotifications();
 
             db.ref('/users/' + user.uid).once('value').then((snapshot) => {
-                const userData = snapshot.val();
+                const userData = snapshot.val() || {};
                 if (userData && userData.name) {
                     document.getElementById('display-username').innerText = userData.name;
                 } else if (user.displayName) {
@@ -347,8 +620,15 @@ auth.onAuthStateChanged((user) => {
                 } else {
                     document.getElementById('display-username').innerText = 'المستخدم';
                 }
-            }).catch(() => {
+                showAdminLinks(userData);
+                loadPublishPage(user, userData);
+                loadAdminDashboard(user, userData);
+            }).catch((error) => {
+                console.error('User profile failed to load:', error);
                 document.getElementById('display-username').innerText = user.displayName || 'المستخدم';
+                showAdminLinks({});
+                loadPublishPage(user, {});
+                loadAdminDashboard(user, {});
             });
 
             loadSettingsPage(user);
@@ -361,6 +641,7 @@ auth.onAuthStateChanged((user) => {
 function toggleDropdown() {
     const userDrop = document.getElementById('user-dropdown');
     const notiDrop = document.getElementById('noti-dropdown');
+    if (!userDrop) return;
     userDrop.style.display = userDrop.style.display === 'flex' ? 'none' : 'flex';
     if (notiDrop) notiDrop.style.display = 'none';
 }
@@ -368,6 +649,7 @@ function toggleDropdown() {
 function toggleNotifications() {
     const notiDrop = document.getElementById('noti-dropdown');
     const userDrop = document.getElementById('user-dropdown');
+    if (!notiDrop) return;
     notiDrop.style.display = notiDrop.style.display === 'flex' ? 'none' : 'flex';
     if (userDrop) userDrop.style.display = 'none';
 }
