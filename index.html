@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الدخول - سايبر مصر</title>
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body class="auth-body">
 
@@ -12,7 +12,6 @@
         <div class="auth-box">
             <img src="Syber-Masr.PNG" alt="لوجو سايبر مصر" class="auth-logo">
             
-            <!-- نموذج تسجيل الدخول -->
             <div id="login-form">
                 <h2>تسجيل الدخول</h2>
                 <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" required>
@@ -21,7 +20,6 @@
                 <p class="auth-switch">ليس لديك حساب؟ <a href="#" onclick="toggleAuthMode('signup')">إنشاء حساب جديد</a></p>
             </div>
 
-            <!-- نموذج إنشاء حساب (مخفي افتراضياً) -->
             <div id="signup-form" style="display: none;">
                 <h2>إنشاء حساب جديد</h2>
                 <input type="text" id="signupName" placeholder="الاسم بالكامل" required>
@@ -31,7 +29,6 @@
                 <button onclick="registerUser()">إنشاء حساب</button>
                 <p class="auth-switch">لديك حساب بالفعل؟ <a href="#" onclick="toggleAuthMode('login')">تسجيل الدخول</a></p>
             </div>
-
         </div>
     </div>
 
