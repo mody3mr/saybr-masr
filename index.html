@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سايبر مصر - Cyber Masr</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome للأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- شاشة تسجيل الدخول (تظهر للزوار فقط) -->
+    <div id="login-section" class="auth-container">
+        <div class="auth-box">
+            <img src="6CE9AC26-6A5E-4ECE-B7AD-D1C57D10DD95.jpg" alt="لوجو سايبر مصر" class="auth-logo">
+            <h2>تسجيل الدخول / إنشاء حساب</h2>
+            <input type="text" id="userName" placeholder="اسم المستخدم (مثال: أحمد)" required>
+            <input type="tel" id="userPhone" placeholder="رقم الموبايل" required>
+            <button id="loginBtn" onclick="handleLogin()">دخول</button>
+        </div>
+    </div>
+
+    <!-- محتوى الموقع (مخفي حتى تسجيل الدخول) -->
+    <div id="main-app" style="display: none;">
+        
+        <!-- الهيدر العلوي -->
+        <header class="top-header">
+            <div class="header-right">
+                <button id="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            </div>
+            
+            <div class="header-center">
+                <img src="6CE9AC26-6A5E-4ECE-B7AD-D1C57D10DD95.jpg" alt="Cyber Masr" class="nav-logo">
+                <h1>سايبر مصر</h1>
+            </div>
+
+            <div class="header-left">
+                <div class="notification-bell">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="noti-count">3</span>
+                </div>
+                <div class="user-profile" onclick="toggleDropdown()">
+                    <span id="display-username">المستخدم</span>
+                    <i class="fas fa-user-circle"></i>
+                    <div class="dropdown-menu" id="user-dropdown">
+                        <a href="#settings"><i class="fas fa-cog"></i> الإعدادات</a>
+                        <a href="#" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> تسجيل خروج</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- القائمة الجانبية (يتم جلب محتواها من الفايربيس) -->
+        <nav id="sidebar" class="sidebar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="ابحث عن مشكلة، برنامج، كود...">
+            </div>
+            <!-- التابات الديناميكية هتترص هنا بالجافاسكريبت -->
+            <ul id="dynamic-tabs">
+                <li><i class="fas fa-spinner fa-spin"></i> جاري تحميل الأقسام...</li>
+            </ul>
+        </nav>
+
+        <!-- المحتوى الرئيسي -->
+        <main class="content-area">
+            <div id="content-container">
+                <h2>أهلاً بك في سايبر مصر</h2>
+                <p>اختر قسماً من القائمة الجانبية للبدء.</p>
+                <!-- المحتوى هيتغير هنا بناءً على التاب اللي هيتم اختياره -->
+            </div>
+        </main>
+
+        <!-- الفوتر -->
+        <footer>
+            <div class="footer-links">
+                <a href="#about">من نحن</a>
+                <a href="#contact">تواصل معنا</a>
+                <a href="#privacy">سياسة الاستخدام</a>
+            </div>
+            <!-- أيقونات السوشيال ميديا الديناميكية -->
+            <div class="social-icons" id="dynamic-social">
+                <!-- سيتم إضافتها من الداش بورد -->
+            </div>
+            <div class="copyright">
+                تم الانشاء بواسطة <a href="https://wa.me/201000000000" target="_blank" class="dev-link">محمد عمرو ابراهيم</a> © 2026
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    
+    <script src="app.js"></script>
+</body>
+</html>
