@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الرئيسية - سايبر مصر</title>
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=5">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -22,7 +22,7 @@
         <div class="header-left">
             <div class="notification-bell">
                 <i class="fas fa-bell"></i>
-                <span class="badge" id="noti-count">0</span>
+                <span class="badge" id="noti-count">2</span>
             </div>
             <div class="user-profile" onclick="toggleDropdown()">
                 <span id="display-username">جاري التحميل...</span>
@@ -41,14 +41,18 @@
             <input type="text" placeholder="ابحث هنا...">
         </div>
         <ul id="dynamic-tabs">
-            <li><i class="fas fa-spinner fa-spin"></i> جاري تحميل الأقسام...</li>
+            <!-- سيتم إضافة الأقسام هنا برمجياً لضمان السرعة -->
+            <li><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</li>
         </ul>
     </nav>
 
     <main class="content-area">
         <div id="content-container">
-            <h2>أهلاً بك في سايبر مصر</h2>
-            <p>اختر قسماً من القائمة الجانبية للبدء.</p>
+            <div class="welcome-card">
+                <h2><i class="fas fa-rocket"></i> أهلاً بك في منصة سايبر مصر</h2>
+                <p>المنصة الأولى لتجميع حلول الويندوز، الألعاب، برامج الإدارة، وسيرفرات الشبكات.</p>
+                <p style="margin-top: 10px; color: var(--secondary-neon);">⬅️ اختر قسماً من القائمة الجانبية للبدء.</p>
+            </div>
         </div>
     </main>
 
@@ -59,6 +63,8 @@
             <a href="#privacy">سياسة الاستخدام</a>
         </div>
         <div class="social-icons" id="dynamic-social">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-tiktok"></i></a>
         </div>
         <div class="copyright">
             تم الانشاء بواسطة <a href="https://wa.me/201000000000" target="_blank" class="dev-link">محمد عمرو ابراهيم</a> © 2026
