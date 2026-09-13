@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الرئيسية - سايبر مصر</title>
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -12,6 +12,12 @@
     <header class="top-header">
         <div class="header-right">
             <button id="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <!-- الروابط اتنقلت هنا جنب زرار القائمة -->
+            <div class="top-links">
+                <a href="#about" id="link-about">من نحن</a>
+                <a href="#contact" id="link-contact">تواصل معنا</a>
+                <a href="#privacy" id="link-privacy">سياسة الاستخدام</a>
+            </div>
         </div>
         
         <div class="header-center">
@@ -22,7 +28,7 @@
         <div class="header-left">
             <div class="notification-bell">
                 <i class="fas fa-bell"></i>
-                <span class="badge" id="noti-count">2</span>
+                <span class="badge" id="noti-count">0</span>
             </div>
             <div class="user-profile" onclick="toggleDropdown()">
                 <span id="display-username">جاري التحميل...</span>
@@ -41,7 +47,6 @@
             <input type="text" placeholder="ابحث هنا...">
         </div>
         <ul id="dynamic-tabs">
-            <!-- سيتم إضافة الأقسام هنا برمجياً لضمان السرعة -->
             <li><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</li>
         </ul>
     </nav>
@@ -50,22 +55,17 @@
         <div id="content-container">
             <div class="welcome-card">
                 <h2><i class="fas fa-rocket"></i> أهلاً بك في منصة سايبر مصر</h2>
-                <p>المنصة الأولى لتجميع حلول الويندوز، الألعاب، برامج الإدارة، وسيرفرات الشبكات.</p>
-                <p style="margin-top: 10px; color: var(--secondary-neon);">⬅️ اختر قسماً من القائمة الجانبية للبدء.</p>
+                <p>قم باختيار قسم من القائمة الجانبية للبدء. سيتم تحميل المحتوى والأقسام ديناميكياً من لوحة التحكم.</p>
             </div>
         </div>
     </main>
 
     <footer>
-        <div class="footer-links">
-            <a href="#about">من نحن</a>
-            <a href="#contact">تواصل معنا</a>
-            <a href="#privacy">سياسة الاستخدام</a>
+        <!-- حاوية ديناميكية للفوتر (سيتم ملؤها من الداش بورد لاحقاً) -->
+        <div id="dynamic-footer-content" class="dynamic-footer">
+            <!-- جافاسكريبت هيحط هنا السوشيال ميديا وأي بيانات تانية -->
         </div>
-        <div class="social-icons" id="dynamic-social">
-            <a href="#"><i class="fab fa-facebook"></i></a>
-            <a href="#"><i class="fab fa-tiktok"></i></a>
-        </div>
+        
         <div class="copyright">
             تم الانشاء بواسطة <a href="https://wa.me/201000000000" target="_blank" class="dev-link">محمد عمرو ابراهيم</a> © 2026
         </div>
