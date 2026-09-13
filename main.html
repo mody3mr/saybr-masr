@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الرئيسية - سايبر مصر</title>
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -15,7 +15,6 @@
         </div>
         
         <div class="header-center">
-            <!-- تم تعديل اسم الصورة هنا كمان -->
             <img src="Syber-Masr.PNG" alt="Cyber Masr" class="nav-logo">
             <h1>سايبر مصر</h1>
         </div>
@@ -23,10 +22,10 @@
         <div class="header-left">
             <div class="notification-bell">
                 <i class="fas fa-bell"></i>
-                <span class="badge" id="noti-count">3</span>
+                <span class="badge" id="noti-count">0</span>
             </div>
             <div class="user-profile" onclick="toggleDropdown()">
-                <span id="display-username">المستخدم</span>
+                <span id="display-username">جاري التحميل...</span>
                 <i class="fas fa-user-circle"></i>
                 <div class="dropdown-menu" id="user-dropdown">
                     <a href="#settings"><i class="fas fa-cog"></i> الإعدادات</a>
@@ -69,17 +68,7 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="app.js"></script>
-    
-    <script>
-        window.onload = () => {
-            const savedUser = localStorage.getItem('cyberMasrUser');
-            if(!savedUser) {
-                window.location.href = "index.html";
-            } else {
-                document.getElementById('display-username').innerText = savedUser;
-            }
-        }
-    </script>
 </body>
 </html>
