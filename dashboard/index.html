@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم - سايبر مصر</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=1">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body class="dashboard-body">
     <div id="dashboard-toast" class="dashboard-toast" aria-live="polite"></div>
 
+    <!-- شاشة تسجيل الدخول -->
     <section id="dashboard-login" class="dashboard-login-screen">
         <div class="login-panel">
             <div class="brand-mark" aria-hidden="true">SM</div>
@@ -39,6 +40,7 @@
         </div>
     </section>
 
+    <!-- لوحة التحكم الأساسية -->
     <div id="dashboard-app" class="dashboard-app" hidden>
         <header class="dashboard-header">
             <div class="dashboard-brand">
@@ -57,67 +59,396 @@
         </header>
 
         <div class="dashboard-layout">
+            <!-- القائمة الجانبية -->
             <aside class="dashboard-sidebar" aria-label="تنقل لوحة التحكم">
                 <div class="sidebar-label">الإدارة</div>
-                <button class="dashboard-nav active" type="button" data-section="overview-section">
-                    <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
-                    <span>نظرة عامة</span>
+                <button class="dashboard-nav active" type="button" data-section="statistics-section">
+                    <i class="fa-solid fa-chart-pie" aria-hidden="true"></i>
+                    <span>الإحصائيات</span>
                 </button>
-                <button class="dashboard-nav" type="button" data-section="requests-section">
-                    <i class="fa-solid fa-inbox" aria-hidden="true"></i>
-                    <span>طلبات المحتوى</span>
-                    <b id="pending-count-badge" class="nav-badge">0</b>
+                <button class="dashboard-nav" type="button" data-section="dynamic-tabs-section">
+                    <i class="fa-solid fa-bars-staggered" aria-hidden="true"></i>
+                    <span>إضافة تابات</span>
                 </button>
+                <button class="dashboard-nav" type="button" data-section="categories-section">
+                    <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+                    <span>الأقسام</span>
+                </button>
+                <button class="dashboard-nav" type="button" data-section="content-section">
+                    <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+                    <span>المحتوى</span>
+                </button>
+                <button class="dashboard-nav" type="button" data-section="employees-section">
+                    <i class="fa-solid fa-user-tie" aria-hidden="true"></i>
+                    <span>الموظفين</span>
+                </button>
+                <button class="dashboard-nav" type="button" data-section="members-section">
+                    <i class="fa-solid fa-users" aria-hidden="true"></i>
+                    <span>الأعضاء</span>
+                </button>
+                <button class="dashboard-nav" type="button" data-section="complaints-section">
+                    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                    <span>الشكاوي</span>
+                </button>
+                <button class="dashboard-nav" type="button" data-section="notifications-section">
+                    <i class="fa-solid fa-bell" aria-hidden="true"></i>
+                    <span>الإشعارات</span>
+                </button>
+                <button class="dashboard-nav" type="button" data-section="activity-log-section">
+                    <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+                    <span>سجل النشاطات</span>
+                </button>
+                <button class="dashboard-nav" type="button" data-section="settings-section">
+                    <i class="fa-solid fa-gear" aria-hidden="true"></i>
+                    <span>الإعدادات</span>
+                </button>
+
+                <!-- الحاوية للتابات المضافة ديناميكياً -->
+                <div id="dynamic-sidebar-tabs"></div>
+
                 <div class="sidebar-footer">بوابة مستقلة للإدارة</div>
             </aside>
 
+            <!-- محتوى التابات -->
             <main class="dashboard-main">
-                <section id="overview-section" class="dashboard-section active-section">
+                
+                <!-- 1. تاب الإحصائيات -->
+                <section id="statistics-section" class="dashboard-section active-section">
                     <div class="section-heading">
                         <div>
-                            <p class="eyebrow">CONTROL CENTER</p>
-                            <h1>نظرة عامة</h1>
-                            <p>متابعة سريعة لحالة المنصة وبياناتها الإدارية.</p>
+                            <p class="eyebrow">OVERVIEW</p>
+                            <h1>الإحصائيات</h1>
+                            <p>نظرة عامة على أداء المنصة والأرقام الحالية.</p>
                         </div>
-                        <span class="security-status"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> اتصال إداري مؤمّن</span>
                     </div>
-
                     <div class="stats-grid">
-                        <article class="stat-card">
-                            <span class="stat-icon cyan"><i class="fa-solid fa-users" aria-hidden="true"></i></span>
-                            <div><span>إجمالي الأعضاء</span><strong id="stat-users">--</strong></div>
-                        </article>
-                        <article class="stat-card">
-                            <span class="stat-icon violet"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
-                            <div><span>الأقسام</span><strong id="stat-categories">--</strong></div>
-                        </article>
-                        <article class="stat-card">
-                            <span class="stat-icon amber"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></span>
-                            <div><span>طلبات قيد المراجعة</span><strong id="stat-pending">--</strong></div>
-                        </article>
+                        <article class="stat-card"><span class="stat-icon cyan"><i class="fa-solid fa-user-tie"></i></span><div><span>عدد الموظفين</span><strong id="stat-emp-count">0</strong></div></article>
+                        <article class="stat-card"><span class="stat-icon violet"><i class="fa-solid fa-eye"></i></span><div><span>عدد الزيارات</span><strong id="stat-visits-count">0</strong></div></article>
+                        <article class="stat-card"><span class="stat-icon amber"><i class="fa-solid fa-tower-broadcast"></i></span><div><span>المشاهدين الآن</span><strong id="stat-online-count">0</strong></div></article>
+                        <article class="stat-card"><span class="stat-icon danger"><i class="fa-solid fa-user-slash"></i></span><div><span>الأعضاء المحظورين</span><strong id="stat-banned-count">0</strong></div></article>
+                        <article class="stat-card"><span class="stat-icon success"><i class="fa-solid fa-user-check"></i></span><div><span>الأعضاء النشطين</span><strong id="stat-active-count">0</strong></div></article>
+                        <article class="stat-card"><span class="stat-icon cyan"><i class="fa-solid fa-layer-group"></i></span><div><span>عدد الأقسام</span><strong id="stat-cat-count">0</strong></div></article>
+                        <article class="stat-card"><span class="stat-icon violet"><i class="fa-solid fa-file-pen"></i></span><div><span>عدد المنشورات</span><strong id="stat-posts-count">0</strong></div></article>
                     </div>
-
-                    <section class="dashboard-panel welcome-panel">
-                        <div class="panel-icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div>
-                        <div>
-                            <h2>مرحباً بك في لوحة الإدارة</h2>
-                            <p>تم فصل هذه البوابة عن ملفات المتجر بالكامل. أي حماية إضافية أو صلاحيات جديدة يمكن إضافتها هنا دون تعديل واجهة المتجر.</p>
+                    <div class="dashboard-panel p-20 mt-20">
+                        <h2>التحليلات المتقدمة</h2>
+                        <div class="analytics-row">
+                            <div class="analytic-item"><strong>أكثر منشور تمت مشاهدته:</strong> <span id="top-post-name">--</span></div>
+                            <div class="analytic-item"><strong>أكثر قسم عليه زيارة:</strong> <span id="top-category-name">--</span></div>
                         </div>
-                    </section>
+                    </div>
                 </section>
 
-                <section id="requests-section" class="dashboard-section" hidden>
+                <!-- 2. تاب إضافة تابات -->
+                <section id="dynamic-tabs-section" class="dashboard-section" hidden>
                     <div class="section-heading">
                         <div>
-                            <p class="eyebrow">CONTENT REVIEW</p>
-                            <h1>طلبات المحتوى</h1>
-                            <p>راجع المحتوى قبل ظهوره للأعضاء وسجّل قرار الإدارة مع صاحب الطلب.</p>
+                            <h1>إضافة تابات للقائمة الجانبية</h1>
+                            <p>أضف أو عدّل التابات الجانبية الديناميكية.</p>
                         </div>
                     </div>
-                    <div id="requests-list" class="requests-list">
-                        <div class="empty-state"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i><span>جاري تحميل الطلبات...</span></div>
+                    <div class="dashboard-panel p-20">
+                        <form id="add-tab-form" class="dashboard-form flex-form">
+                            <div class="input-wrap">
+                                <input type="text" id="new-tab-name" placeholder="اسم التاب الجديد" required>
+                            </div>
+                            <button class="primary-button mt-0" type="submit">إضافة تاب</button>
+                        </form>
+                        <div class="table-responsive mt-20">
+                            <table class="dashboard-table">
+                                <thead><tr><th>اسم التاب</th><th>الإجراءات</th></tr></thead>
+                                <tbody id="dynamic-tabs-list">
+                                    <!-- Dynamic rows go here -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </section>
+
+                <!-- 3. تاب الأقسام -->
+                <section id="categories-section" class="dashboard-section" hidden>
+                    <div class="section-heading">
+                        <div>
+                            <h1>الأقسام</h1>
+                            <p>إدارة أقسام الموقع، التعديل، والحذف.</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-panel p-20">
+                        <form id="add-category-form" class="dashboard-form flex-form">
+                            <div class="input-wrap">
+                                <input type="text" id="new-category-name" placeholder="اسم القسم" required>
+                            </div>
+                            <button class="primary-button mt-0" type="submit">إضافة قسم</button>
+                        </form>
+                        <div class="table-responsive mt-20">
+                            <table class="dashboard-table">
+                                <thead><tr><th>اسم القسم</th><th>عدد المنشورات</th><th>الإجراءات</th></tr></thead>
+                                <tbody id="categories-list">
+                                    <!-- Dynamic rows go here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. تاب المحتوى (مؤجل للتفاصيل اللاحقة) -->
+                <section id="content-section" class="dashboard-section" hidden>
+                    <div class="section-heading">
+                        <div>
+                            <h1>المحتوى</h1>
+                            <p>إدارة المحتوى بناءً على التخطيط الذي سيتم إضافته لاحقاً.</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-panel p-20 text-center">
+                        <i class="fa-solid fa-pen-ruler fa-3x" style="color: var(--dashboard-muted)"></i>
+                        <h2 class="mt-20">في انتظار المخطط التفصيلي للمحتوى</h2>
+                    </div>
+                </section>
+
+                <!-- 5. تاب الموظفين -->
+                <section id="employees-section" class="dashboard-section" hidden>
+                    <div class="section-heading">
+                        <div>
+                            <h1>إدارة الموظفين</h1>
+                            <p>إضافة موظفين، تحديد الصلاحيات، وإدارة حساباتهم.</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-panel p-20 mb-20">
+                        <h2>إضافة موظف جديد</h2>
+                        <form id="add-employee-form" class="dashboard-form grid-form">
+                            <div class="input-wrap"><input type="text" id="emp-name" placeholder="اسم الموظف" required></div>
+                            <div class="input-wrap"><input type="tel" id="emp-phone" placeholder="رقم الهاتف" required></div>
+                            <div class="input-wrap"><input type="email" id="emp-email" placeholder="البريد الإلكتروني" required></div>
+                            <div class="input-wrap"><input type="password" id="emp-password" placeholder="كلمة المرور" required></div>
+                            
+                            <!-- الصلاحيات -->
+                            <div class="permissions-wrap full-width">
+                                <h3>صلاحيات الموظف</h3>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" value="stats"> الإحصائيات</label>
+                                    <label><input type="checkbox" value="categories"> الأقسام</label>
+                                    <label><input type="checkbox" value="content"> المحتوى</label>
+                                    <label><input type="checkbox" value="members"> الأعضاء</label>
+                                    <label><input type="checkbox" value="complaints"> الشكاوي</label>
+                                </div>
+                            </div>
+                            <button class="primary-button full-width" type="submit">إنشاء حساب الموظف</button>
+                        </form>
+                    </div>
+
+                    <div class="dashboard-panel p-20">
+                        <div class="search-wrap mb-20">
+                            <input type="text" id="search-employee" placeholder="بحث باسم الموظف أو رقم الهاتف...">
+                            <i class="fa-solid fa-search"></i>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="dashboard-table">
+                                <thead><tr><th>الاسم</th><th>البريد</th><th>الهاتف</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
+                                <tbody id="employees-list">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. تاب الأعضاء -->
+                <section id="members-section" class="dashboard-section" hidden>
+                    <div class="section-heading">
+                        <div>
+                            <h1>إدارة الأعضاء</h1>
+                            <p>البحث، التعديل، حظر الأعضاء وحذفهم.</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-panel p-20">
+                        <div class="search-wrap mb-20">
+                            <input type="text" id="search-member" placeholder="بحث باسم العضو أو رقم الهاتف...">
+                            <i class="fa-solid fa-search"></i>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="dashboard-table">
+                                <thead><tr><th>العضو</th><th>تاريخ الإنشاء</th><th>عدد المنشورات</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
+                                <tbody id="members-list">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 7. تاب الشكاوي -->
+                <section id="complaints-section" class="dashboard-section" hidden>
+                    <div class="section-heading">
+                        <div>
+                            <h1>الشكاوي والبلاغات</h1>
+                            <p>متابعة بلاغات الأعضاء ومعالجة المشاكل الفنية.</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-panel p-20">
+                        <div class="table-responsive">
+                            <table class="dashboard-table">
+                                <thead><tr><th>العضو</th><th>نوع البلاغ</th><th>التاريخ</th><th>حالة المشكلة</th><th>الإجراءات</th></tr></thead>
+                                <tbody id="complaints-list">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 8. تاب الإشعارات -->
+                <section id="notifications-section" class="dashboard-section" hidden>
+                    <div class="section-heading">
+                        <div>
+                            <h1>الإشعارات</h1>
+                            <p>إرسال إشعارات للأعضاء وإدارة السجل.</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-panel p-20 mb-20">
+                        <form id="send-notification-form" class="dashboard-form">
+                            <label>إرسال إلى</label>
+                            <div class="input-wrap">
+                                <select id="notif-target" class="dashboard-select">
+                                    <option value="all">جميع الأعضاء</option>
+                                    <option value="specific">عضو محدد (سيظهر حقل UID)</option>
+                                </select>
+                            </div>
+                            <div class="input-wrap mt-10" id="notif-uid-wrap" hidden>
+                                <input type="text" id="notif-uid" placeholder="أدخل UID العضو">
+                            </div>
+                            <label>نص الإشعار</label>
+                            <div class="input-wrap">
+                                <textarea id="notif-message" rows="3" placeholder="اكتب الإشعار هنا..." required></textarea>
+                            </div>
+                            <button class="primary-button" type="submit">إرسال الإشعار <i class="fa-solid fa-paper-plane"></i></button>
+                        </form>
+                    </div>
+                    <div class="dashboard-panel p-20">
+                        <div class="flex-between mb-20">
+                            <h2>سجل الإشعارات المرسلة</h2>
+                            <button class="reject-button" id="delete-all-notifs"><i class="fa-solid fa-trash"></i> مسح الكل</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="dashboard-table">
+                                <thead><tr><th>المرسل إليه</th><th>الرسالة</th><th>التاريخ</th><th>الإجراءات</th></tr></thead>
+                                <tbody id="notifications-list">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 9. تاب سجل النشاطات -->
+                <section id="activity-log-section" class="dashboard-section" hidden>
+                    <div class="section-heading">
+                        <div>
+                            <h1>سجل النشاطات</h1>
+                            <p>مراقبة كل حركة تحدث داخل لوحة التحكم أو الموقع.</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-panel p-20">
+                        <div class="filters-wrap flex-between mb-20">
+                            <div class="flex-gap">
+                                <input type="date" id="log-date-filter" class="dashboard-input">
+                                <select id="log-emp-filter" class="dashboard-select">
+                                    <option value="all">كل الموظفين</option>
+                                    <!-- options -->
+                                </select>
+                            </div>
+                            <div class="flex-gap">
+                                <button class="primary-button mt-0" id="export-excel"><i class="fa-solid fa-file-excel"></i> إكسيل</button>
+                                <button class="primary-button mt-0" id="export-pdf"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                                <button class="reject-button mt-0" id="archive-logs"><i class="fa-solid fa-box-archive"></i> أرشفة السجل</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="dashboard-table">
+                                <thead><tr><th>الموظف/العضو</th><th>الإجراء</th><th>التفاصيل</th><th>الوقت والتاريخ</th></tr></thead>
+                                <tbody id="activity-list">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 10. تاب الإعدادات -->
+                <section id="settings-section" class="dashboard-section" hidden>
+                    <div class="section-heading">
+                        <div>
+                            <h1>الإعدادات العامة</h1>
+                            <p>التحكم الشامل في إعدادات وواجهة الموقع.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-panel p-20 mb-20">
+                        <h2>إعدادات الموقع الأساسية</h2>
+                        <div class="dashboard-form mt-20">
+                            <label>اسم الموقع</label>
+                            <div class="input-wrap mb-20"><input type="text" id="setting-site-name" placeholder="مثال: سايبر مصر"></div>
+                            
+                            <div class="toggle-setting flex-between mb-20">
+                                <div><strong>وضع الصيانة (تعطيل الموقع)</strong><p class="text-muted text-small">تفعيل هذه الخاصية سيمنع الزوار من دخول الموقع.</p></div>
+                                <label class="switch"><input type="checkbox" id="setting-maintenance"><span class="slider round"></span></label>
+                            </div>
+                            <div class="input-wrap mb-20" id="maintenance-msg-wrap"><input type="text" id="setting-maintenance-msg" placeholder="رسالة الصيانة التي ستظهر للزوار..."></div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-panel p-20 mb-20">
+                        <h2>إعدادات الصفحات والفوتر</h2>
+                        <div class="dashboard-form">
+                            <!-- اتصل بنا -->
+                            <div class="toggle-setting flex-between mb-10">
+                                <strong>تفعيل صفحة (اتصل بنا)</strong>
+                                <label class="switch"><input type="checkbox" id="setting-contact-enable" checked><span class="slider round"></span></label>
+                            </div>
+                            <button class="secondary-button mb-20" id="btn-edit-contact">تعديل بيانات صفحة اتصل بنا <i class="fa-solid fa-pen"></i></button>
+
+                            <!-- سياسة الاستخدام -->
+                            <div class="toggle-setting flex-between mb-10">
+                                <strong>تفعيل صفحة (سياسة الاستخدام)</strong>
+                                <label class="switch"><input type="checkbox" id="setting-terms-enable" checked><span class="slider round"></span></label>
+                            </div>
+                            <button class="secondary-button mb-20" id="btn-edit-terms">تعديل سياسة الاستخدام <i class="fa-solid fa-pen"></i></button>
+
+                            <hr class="dashboard-hr">
+
+                            <!-- إعدادات الفوتر -->
+                            <h3>إضافات الفوتر (الأسفل)</h3>
+                            <div class="toggle-setting flex-between mb-10">
+                                <strong>عرض عدد الزوار الآن في الفوتر</strong>
+                                <label class="switch"><input type="checkbox" id="setting-footer-visitors"><span class="slider round"></span></label>
+                            </div>
+                            <div class="toggle-setting flex-between mb-10">
+                                <strong>عرض إجمالي الأعضاء في الفوتر</strong>
+                                <label class="switch"><input type="checkbox" id="setting-footer-members"><span class="slider round"></span></label>
+                            </div>
+                            <div class="toggle-setting flex-between mb-20">
+                                <strong>تفعيل زر (الإبلاغ عن مشكلة) للأعضاء</strong>
+                                <label class="switch"><input type="checkbox" id="setting-report-issue"><span class="slider round"></span></label>
+                            </div>
+
+                            <hr class="dashboard-hr">
+
+                            <!-- السوشيال ميديا -->
+                            <h3>روابط السوشيال ميديا</h3>
+                            <div class="grid-form">
+                                <div class="input-wrap"><i class="fa-brands fa-facebook"></i><input type="text" id="setting-social-fb" placeholder="رابط فيسبوك"></div>
+                                <div class="input-wrap"><i class="fa-brands fa-instagram"></i><input type="text" id="setting-social-ig" placeholder="رابط انستجرام"></div>
+                                <div class="input-wrap"><i class="fa-brands fa-tiktok"></i><input type="text" id="setting-social-tt" placeholder="رابط تيك توك"></div>
+                            </div>
+                            <div class="toggle-setting flex-between mt-10">
+                                <strong>تفعيل ظهور أيقونات السوشيال ميديا</strong>
+                                <label class="switch"><input type="checkbox" id="setting-social-enable" checked><span class="slider round"></span></label>
+                            </div>
+                            
+                            <button class="primary-button mt-20" id="save-settings-btn"><i class="fa-solid fa-save"></i> حفظ جميع الإعدادات</button>
+                        </div>
+                    </div>
+                </section>
+
             </main>
         </div>
     </div>
@@ -125,7 +456,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="app-config.js?v=1"></script>
-    <script src="app.js?v=1"></script>
+    <script src="app-config.js?v=2"></script>
+    <script src="app.js?v=2"></script>
 </body>
 </html>
