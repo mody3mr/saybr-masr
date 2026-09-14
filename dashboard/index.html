@@ -5,13 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم - سايبر مصر</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body class="dashboard-body">
+    <!-- شاشة التحميل لمنع الرمشة أثناء فحص تسجيل الدخول -->
+    <div id="auth-loader" style="position: fixed; inset: 0; background: #0b0d12; z-index: 9999; display: grid; place-items: center;">
+        <i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color: #19d3e6;"></i>
+    </div>
+
     <div id="dashboard-toast" class="dashboard-toast" aria-live="polite"></div>
 
-    <!-- شاشة تسجيل الدخول -->
-    <section id="dashboard-login" class="dashboard-login-screen">
+    <!-- شاشة تسجيل الدخول (مخفية افتراضياً لحين التأكد من حالة المستخدم) -->
+    <section id="dashboard-login" class="dashboard-login-screen" hidden>
         <div class="login-panel">
             <div class="brand-mark" aria-hidden="true">SM</div>
             <p class="eyebrow">SAYBR MASR / CONTROL</p>
@@ -68,15 +73,11 @@
                 </button>
                 <button class="dashboard-nav" type="button" data-section="dynamic-tabs-section">
                     <i class="fa-solid fa-bars-staggered" aria-hidden="true"></i>
-                    <span>إضافة تابات</span>
-                </button>
-                <button class="dashboard-nav" type="button" data-section="categories-section">
-                    <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
-                    <span>الأقسام</span>
+                    <span>إدارة التابات (الأقسام)</span>
                 </button>
                 <button class="dashboard-nav" type="button" data-section="content-section">
                     <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
-                    <span>المحتوى</span>
+                    <span>المحتوى والمنشورات</span>
                 </button>
                 <button class="dashboard-nav" type="button" data-section="employees-section">
                     <i class="fa-solid fa-user-tie" aria-hidden="true"></i>
@@ -127,24 +128,24 @@
                         <article class="stat-card"><span class="stat-icon amber"><i class="fa-solid fa-tower-broadcast"></i></span><div><span>المشاهدين الآن</span><strong id="stat-online-count">0</strong></div></article>
                         <article class="stat-card"><span class="stat-icon danger"><i class="fa-solid fa-user-slash"></i></span><div><span>الأعضاء المحظورين</span><strong id="stat-banned-count">0</strong></div></article>
                         <article class="stat-card"><span class="stat-icon success"><i class="fa-solid fa-user-check"></i></span><div><span>الأعضاء النشطين</span><strong id="stat-active-count">0</strong></div></article>
-                        <article class="stat-card"><span class="stat-icon cyan"><i class="fa-solid fa-layer-group"></i></span><div><span>عدد الأقسام</span><strong id="stat-cat-count">0</strong></div></article>
+                        <article class="stat-card"><span class="stat-icon cyan"><i class="fa-solid fa-layer-group"></i></span><div><span>عدد التابات (الأقسام)</span><strong id="stat-tabs-count">0</strong></div></article>
                         <article class="stat-card"><span class="stat-icon violet"><i class="fa-solid fa-file-pen"></i></span><div><span>عدد المنشورات</span><strong id="stat-posts-count">0</strong></div></article>
                     </div>
                     <div class="dashboard-panel p-20 mt-20">
                         <h2>التحليلات المتقدمة</h2>
                         <div class="analytics-row">
                             <div class="analytic-item"><strong>أكثر منشور تمت مشاهدته:</strong> <span id="top-post-name">--</span></div>
-                            <div class="analytic-item"><strong>أكثر قسم عليه زيارة:</strong> <span id="top-category-name">--</span></div>
+                            <div class="analytic-item"><strong>أكثر تاب عليه زيارة:</strong> <span id="top-category-name">--</span></div>
                         </div>
                     </div>
                 </section>
 
-                <!-- 2. تاب إضافة تابات -->
+                <!-- 2. تاب إضافة تابات (تم دمج فكرة الأقسام هنا) -->
                 <section id="dynamic-tabs-section" class="dashboard-section" hidden>
                     <div class="section-heading">
                         <div>
-                            <h1>إضافة تابات للقائمة الجانبية</h1>
-                            <p>أضف أو عدّل التابات الجانبية الديناميكية.</p>
+                            <h1>إدارة التابات</h1>
+                            <p>إضافة تابات للقائمة الجانبية لتنظيم ونشر المحتوى بداخلها.</p>
                         </div>
                     </div>
                     <div class="dashboard-panel p-20">
@@ -156,7 +157,7 @@
                         </form>
                         <div class="table-responsive mt-20">
                             <table class="dashboard-table">
-                                <thead><tr><th>اسم التاب</th><th>الإجراءات</th></tr></thead>
+                                <thead><tr><th>اسم التاب</th><th>عدد المنشورات</th><th>الإجراءات</th></tr></thead>
                                 <tbody id="dynamic-tabs-list">
                                     <!-- Dynamic rows go here -->
                                 </tbody>
@@ -165,38 +166,12 @@
                     </div>
                 </section>
 
-                <!-- 3. تاب الأقسام -->
-                <section id="categories-section" class="dashboard-section" hidden>
-                    <div class="section-heading">
-                        <div>
-                            <h1>الأقسام</h1>
-                            <p>إدارة أقسام الموقع، التعديل، والحذف.</p>
-                        </div>
-                    </div>
-                    <div class="dashboard-panel p-20">
-                        <form id="add-category-form" class="dashboard-form flex-form">
-                            <div class="input-wrap">
-                                <input type="text" id="new-category-name" placeholder="اسم القسم" required>
-                            </div>
-                            <button class="primary-button mt-0" type="submit">إضافة قسم</button>
-                        </form>
-                        <div class="table-responsive mt-20">
-                            <table class="dashboard-table">
-                                <thead><tr><th>اسم القسم</th><th>عدد المنشورات</th><th>الإجراءات</th></tr></thead>
-                                <tbody id="categories-list">
-                                    <!-- Dynamic rows go here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 4. تاب المحتوى -->
+                <!-- 3. تاب المحتوى -->
                 <section id="content-section" class="dashboard-section" hidden>
                     <div class="section-heading">
                         <div>
                             <h1>إدارة المحتوى</h1>
-                            <p>إضافة، تعديل، ومراجعة جميع المنشورات والمقالات على المنصة.</p>
+                            <p>إضافة، تعديل، ومراجعة جميع المنشورات والمقالات المربوطة بالتابات.</p>
                         </div>
                         <button class="primary-button" id="btn-show-add-post">
                             <i class="fa-solid fa-plus" aria-hidden="true"></i> إضافة محتوى جديد
@@ -216,10 +191,10 @@
                                     <div class="input-wrap"><input type="text" id="post-title" placeholder="أدخل عنوان المنشور..." required></div>
                                 </div>
                                 <div>
-                                    <label>القسم التابع له</label>
+                                    <label>التاب التابع له</label>
                                     <div class="input-wrap">
-                                        <select id="post-category" class="dashboard-select" required>
-                                            <option value="" disabled selected>جاري تحميل الأقسام...</option>
+                                        <select id="post-tab" class="dashboard-select" required>
+                                            <option value="" disabled selected>جاري تحميل التابات...</option>
                                         </select>
                                     </div>
                                 </div>
@@ -250,7 +225,7 @@
                         </div>
                         <div class="table-responsive">
                             <table class="dashboard-table">
-                                <thead><tr><th>العنوان</th><th>القسم</th><th>المشاهدات</th><th>تاريخ النشر</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
+                                <thead><tr><th>العنوان</th><th>التاب</th><th>المشاهدات</th><th>تاريخ النشر</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
                                 <tbody id="content-list">
                                     <!-- Dynamic rows go here -->
                                 </tbody>
@@ -259,7 +234,7 @@
                     </div>
                 </section>
 
-                <!-- 5. تاب الموظفين -->
+                <!-- 4. تاب الموظفين -->
                 <section id="employees-section" class="dashboard-section" hidden>
                     <div class="section-heading">
                         <div>
@@ -280,7 +255,7 @@
                                 <h3>صلاحيات الموظف</h3>
                                 <div class="checkbox-group">
                                     <label><input type="checkbox" value="stats"> الإحصائيات</label>
-                                    <label><input type="checkbox" value="categories"> الأقسام</label>
+                                    <label><input type="checkbox" value="tabs"> إدارة التابات</label>
                                     <label><input type="checkbox" value="content"> المحتوى</label>
                                     <label><input type="checkbox" value="members"> الأعضاء</label>
                                     <label><input type="checkbox" value="complaints"> الشكاوي</label>
@@ -306,7 +281,7 @@
                     </div>
                 </section>
 
-                <!-- 6. تاب الأعضاء -->
+                <!-- 5. تاب الأعضاء -->
                 <section id="members-section" class="dashboard-section" hidden>
                     <div class="section-heading">
                         <div>
@@ -330,7 +305,7 @@
                     </div>
                 </section>
 
-                <!-- 7. تاب الشكاوي -->
+                <!-- 6. تاب الشكاوي -->
                 <section id="complaints-section" class="dashboard-section" hidden>
                     <div class="section-heading">
                         <div>
@@ -350,7 +325,7 @@
                     </div>
                 </section>
 
-                <!-- 8. تاب الإشعارات -->
+                <!-- 7. تاب الإشعارات -->
                 <section id="notifications-section" class="dashboard-section" hidden>
                     <div class="section-heading">
                         <div>
@@ -393,7 +368,7 @@
                     </div>
                 </section>
 
-                <!-- 9. تاب سجل النشاطات -->
+                <!-- 8. تاب سجل النشاطات -->
                 <section id="activity-log-section" class="dashboard-section" hidden>
                     <div class="section-heading">
                         <div>
@@ -427,7 +402,7 @@
                     </div>
                 </section>
 
-                <!-- 10. تاب الإعدادات -->
+                <!-- 9. تاب الإعدادات -->
                 <section id="settings-section" class="dashboard-section" hidden>
                     <div class="section-heading">
                         <div>
@@ -510,7 +485,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="app-config.js?v=3"></script>
-    <script src="app.js?v=3"></script>
+    <script src="app-config.js?v=4"></script>
+    <script src="app.js?v=4"></script>
 </body>
 </html>
