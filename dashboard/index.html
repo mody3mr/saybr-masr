@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم - سايبر مصر</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body class="dashboard-body">
     <div id="dashboard-toast" class="dashboard-toast" aria-live="polite"></div>
@@ -191,17 +191,71 @@
                     </div>
                 </section>
 
-                <!-- 4. تاب المحتوى (مؤجل للتفاصيل اللاحقة) -->
+                <!-- 4. تاب المحتوى -->
                 <section id="content-section" class="dashboard-section" hidden>
                     <div class="section-heading">
                         <div>
-                            <h1>المحتوى</h1>
-                            <p>إدارة المحتوى بناءً على التخطيط الذي سيتم إضافته لاحقاً.</p>
+                            <h1>إدارة المحتوى</h1>
+                            <p>إضافة، تعديل، ومراجعة جميع المنشورات والمقالات على المنصة.</p>
                         </div>
+                        <button class="primary-button" id="btn-show-add-post">
+                            <i class="fa-solid fa-plus" aria-hidden="true"></i> إضافة محتوى جديد
+                        </button>
                     </div>
-                    <div class="dashboard-panel p-20 text-center">
-                        <i class="fa-solid fa-pen-ruler fa-3x" style="color: var(--dashboard-muted)"></i>
-                        <h2 class="mt-20">في انتظار المخطط التفصيلي للمحتوى</h2>
+
+                    <!-- فورم إضافة محتوى (مخفي افتراضياً) -->
+                    <div id="add-post-panel" class="dashboard-panel p-20 mb-20" hidden>
+                        <div class="flex-between mb-20">
+                            <h2>إنشاء محتوى جديد</h2>
+                            <button class="icon-button" id="btn-cancel-post"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <form id="add-post-form" class="dashboard-form">
+                            <div class="grid-form">
+                                <div>
+                                    <label>عنوان المحتوى</label>
+                                    <div class="input-wrap"><input type="text" id="post-title" placeholder="أدخل عنوان المنشور..." required></div>
+                                </div>
+                                <div>
+                                    <label>القسم التابع له</label>
+                                    <div class="input-wrap">
+                                        <select id="post-category" class="dashboard-select" required>
+                                            <option value="" disabled selected>جاري تحميل الأقسام...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <label class="mt-10">رابط صورة الغلاف (اختياري)</label>
+                            <div class="input-wrap"><input type="url" id="post-image-url" placeholder="https://example.com/image.jpg"></div>
+
+                            <label class="mt-10">تفاصيل المحتوى</label>
+                            <div class="input-wrap">
+                                <textarea id="post-body" rows="6" placeholder="اكتب محتوى المنشور هنا..." required></textarea>
+                            </div>
+
+                            <div class="toggle-setting flex-between mt-20 mb-20">
+                                <strong>تفعيل النشر الفوري (مرئي للأعضاء)</strong>
+                                <label class="switch"><input type="checkbox" id="post-status-active" checked><span class="slider round"></span></label>
+                            </div>
+
+                            <button class="primary-button full-width" type="submit"><i class="fa-solid fa-paper-plane"></i> حفظ ونشر المحتوى</button>
+                        </form>
+                    </div>
+
+                    <!-- جدول عرض المحتوى -->
+                    <div class="dashboard-panel p-20">
+                        <div class="search-wrap mb-20">
+                            <input type="text" id="search-content" placeholder="بحث بعنوان المحتوى...">
+                            <i class="fa-solid fa-search"></i>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="dashboard-table">
+                                <thead><tr><th>العنوان</th><th>القسم</th><th>المشاهدات</th><th>تاريخ النشر</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
+                                <tbody id="content-list">
+                                    <!-- Dynamic rows go here -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </section>
 
@@ -456,7 +510,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="app-config.js?v=2"></script>
-    <script src="app.js?v=2"></script>
+    <script src="app-config.js?v=3"></script>
+    <script src="app.js?v=3"></script>
 </body>
 </html>
