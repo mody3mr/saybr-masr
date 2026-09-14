@@ -3,6 +3,7 @@ const dashboardState = {
     profile: null,
     tabs: [],
     categories: [],
+    posts: [], // إضافة مصفوفة المحتوى
     employees: [],
     members: [],
     complaints: [],
@@ -149,6 +150,17 @@ function initDashboardData() {
         const catCountElem = document.getElementById('stat-cat-count');
         if (catCountElem) catCountElem.textContent = cats.length;
         renderCategories();
+        updatePostCategorySelect(); // تحديث قائمة الأقسام في فورم إضافة منشور
+    });
+
+    dashboardDb.ref('posts').on('value', snap => {
+        const p = [];
+        snap.forEach(child => p.push({ id: child.key, ...child.val() }));
+        dashboardState.posts = p;
+        const postsCountElem = document.getElementById('stat-posts-count');
+        if (postsCountElem) postsCountElem.textContent = p.length;
+        renderPosts();
+        renderCategories(); // إعادة حساب وتحديث عدد المنشورات لكل قسم
     });
 
     dashboardDb.ref('complaints').on('value', snap => {
@@ -177,13 +189,11 @@ function initDashboardData() {
         populateSettings();
     });
 
-    // Mock stats
+    // Mock stats (مؤقت لحين توفر بيانات حقيقية للزيارات)
     const visitsCount = document.getElementById('stat-visits-count');
     const onlineCount = document.getElementById('stat-online-count');
-    const postsCount = document.getElementById('stat-posts-count');
     if (visitsCount) visitsCount.textContent = Math.floor(Math.random() * 5000) + 1000;
     if (onlineCount) onlineCount.textContent = Math.floor(Math.random() * 150) + 10;
-    if (postsCount) postsCount.textContent = 'جاري الحساب...';
 }
 
 // ==========================================
@@ -281,7 +291,7 @@ document.getElementById('add-category-form')?.addEventListener('submit', async (
         return;
     }
 
-    await dashboardDb.ref('categories').push({ name, tabId, isActive: true, postCount: 0 });
+    await dashboardDb.ref('categories').push({ name, tabId, isActive: true, createdAt: firebase.database.ServerValue.TIMESTAMP });
     await logActivity('إضافة قسم', `إضافة قسم جديد "${name}"`);
     showToast('تمت إضافة القسم');
     e.target.reset();
@@ -294,13 +304,16 @@ function renderCategories() {
     
     dashboardState.categories.forEach(cat => {
         const parentTab = dashboardState.tabs.find(t => t.id === cat.tabId);
+        // حساب عدد المنشورات الموجودة بداخل القسم
+        const postCount = dashboardState.posts.filter(p => p.categoryId === cat.id).length;
+
         list.innerHTML += `
             <tr>
                 <td>
                     <strong>${escapeHtml(cat.name)}</strong>
                     <div class="text-muted text-small">تابع لـ: ${escapeHtml(parentTab?.name || 'غير محدد')}</div>
                 </td>
-                <td><span class="status-badge status-pending">${cat.postCount || 0} منشور</span></td>
+                <td><span class="status-badge status-pending">${postCount} منشور</span></td>
                 <td>
                     <div class="table-actions">
                         <button class="action-btn edit" onclick="toggleCategory('${cat.id}')"><i class="fa-solid ${cat.isActive ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
@@ -322,10 +335,114 @@ window.toggleCategory = async (id) => {
 window.deleteCategory = async (id) => {
     const cat = dashboardState.categories.find(c => c.id === id);
     if (!cat) return;
-    if (!confirm('تأكيد حذف القسم؟')) return;
+    if (!confirm('تأكيد حذف القسم؟ قد يؤثر ذلك على المنشورات المرتبطة به.')) return;
     await dashboardDb.ref(`categories/${id}`).remove();
     await logActivity('حذف قسم', `حذف قسم: ${cat.name}`);
 };
+
+// ==========================================
+// Tab 4: Content (المحتوى) - NEW
+// ==========================================
+document.getElementById('btn-show-add-post')?.addEventListener('click', () => {
+    const panel = document.getElementById('add-post-panel');
+    if (panel) panel.hidden = false;
+});
+
+document.getElementById('btn-cancel-post')?.addEventListener('click', () => {
+    const panel = document.getElementById('add-post-panel');
+    const form = document.getElementById('add-post-form');
+    if (panel) panel.hidden = true;
+    if (form) form.reset();
+});
+
+function updatePostCategorySelect() {
+    const select = document.getElementById('post-category');
+    if (!select) return;
+    select.innerHTML = '<option value="" disabled selected>اختر القسم...</option>';
+    dashboardState.categories.filter(c => c.isActive).forEach(cat => {
+        select.innerHTML += `<option value="${cat.id}">${escapeHtml(cat.name)}</option>`;
+    });
+}
+
+document.getElementById('add-post-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const title = document.getElementById('post-title').value.trim();
+    const categoryId = document.getElementById('post-category').value;
+    const imageUrl = document.getElementById('post-image-url').value.trim();
+    const body = document.getElementById('post-body').value.trim();
+    const isActive = document.getElementById('post-status-active').checked;
+    
+    if (!title || !categoryId || !body) {
+        showToast('برجاء إكمال البيانات المطلوبة', 'error');
+        return;
+    }
+
+    const newPost = {
+        title,
+        categoryId,
+        imageUrl,
+        body,
+        isActive,
+        views: 0,
+        authorId: dashboardState.user.uid,
+        authorName: dashboardState.profile?.name || 'الإدارة',
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+    };
+
+    await dashboardDb.ref('posts').push(newPost);
+    await logActivity('نشر محتوى', `تم إضافة منشور جديد: ${title}`);
+    
+    showToast('تم حفظ ونشر المحتوى بنجاح');
+    e.target.reset();
+    document.getElementById('add-post-panel').hidden = true;
+});
+
+function renderPosts(filter = '') {
+    const list = document.getElementById('content-list');
+    if (!list) return;
+    list.innerHTML = '';
+    
+    const filteredPosts = dashboardState.posts.filter(p => (p.title || '').includes(filter));
+    
+    filteredPosts.forEach(post => {
+        const cat = dashboardState.categories.find(c => c.id === post.categoryId);
+        list.innerHTML += `
+            <tr>
+                <td><strong>${escapeHtml(post.title)}</strong></td>
+                <td>${escapeHtml(cat?.name || 'غير محدد')}</td>
+                <td>${post.views || 0}</td>
+                <td>${formatDate(post.createdAt)}</td>
+                <td><span class="status-badge ${post.isActive ? 'status-active' : 'status-banned'}">${post.isActive ? 'منشور' : 'مخفي'}</span></td>
+                <td>
+                    <div class="table-actions">
+                        <button class="action-btn edit" onclick="togglePost('${post.id}')" title="${post.isActive ? 'إخفاء' : 'إظهار'}"><i class="fa-solid ${post.isActive ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
+                        <button class="action-btn delete" onclick="deletePost('${post.id}')" title="حذف"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+document.getElementById('search-content')?.addEventListener('input', (e) => renderPosts(e.target.value));
+
+window.togglePost = async (id) => {
+    const post = dashboardState.posts.find(p => p.id === id);
+    if (!post) return;
+    await dashboardDb.ref(`posts/${id}`).update({ isActive: !post.isActive });
+    await logActivity('تعديل محتوى', `تم تغيير حالة المنشور`);
+};
+
+window.deletePost = async (id) => {
+    const post = dashboardState.posts.find(p => p.id === id);
+    if (!post) return;
+    if (!confirm('تأكيد حذف المنشور نهائياً؟')) return;
+    await dashboardDb.ref(`posts/${id}`).remove();
+    await logActivity('حذف محتوى', `تم حذف منشور: ${post.title}`);
+    showToast('تم حذف المنشور بنجاح');
+};
+
 
 // ==========================================
 // Tab 5: Employees
