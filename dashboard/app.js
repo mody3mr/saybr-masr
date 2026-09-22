@@ -180,7 +180,6 @@ function initDashboardData() {
         populateSettings();
     });
 
-    // تصفير الإحصائيات الوهمية
     const visitsCount = document.getElementById('stat-visits-count');
     const onlineCount = document.getElementById('stat-online-count');
     if (visitsCount) visitsCount.textContent = '0';
@@ -188,7 +187,7 @@ function initDashboardData() {
 }
 
 // ==========================================
-// Tab 2: Dynamic Tabs (بديل الأقسام)
+// Tab 2: Dynamic Tabs
 // ==========================================
 document.getElementById('add-tab-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -204,22 +203,16 @@ document.getElementById('add-tab-form')?.addEventListener('submit', async (e) =>
 
 function renderTabs() {
     const list = document.getElementById('dynamic-tabs-list');
-    if (!list || !elements.dynamicSidebarTabs) return;
+    if (!list) return;
     
-    elements.dynamicSidebarTabs.innerHTML = '';
+    // إخفاء التابات من القائمة الجانبية بناءً على طلبك
+    if (elements.dynamicSidebarTabs) {
+        elements.dynamicSidebarTabs.innerHTML = ''; 
+    }
+    
     list.innerHTML = '';
 
     dashboardState.tabs.forEach(tab => {
-        if (tab.isActive) {
-            const btn = document.createElement('button');
-            btn.className = 'dashboard-nav dynamic-nav';
-            btn.type = 'button';
-            btn.dataset.section = 'content-section'; 
-            btn.innerHTML = `<i class="fa-solid fa-folder-open"></i><span>${escapeHtml(tab.name)}</span>`;
-            elements.dynamicSidebarTabs.appendChild(btn);
-        }
-
-        // حساب عدد المنشورات الموجودة بداخل هذا التاب
         const postCount = dashboardState.posts.filter(p => p.tabId === tab.id).length;
 
         list.innerHTML += `
@@ -236,7 +229,7 @@ function renderTabs() {
         `;
     });
 
-    updatePostTabSelect(); // تحديث قائمة التابات في فورم إضافة المنشور
+    updatePostTabSelect();
 }
 
 window.toggleTabStatus = async (id) => {
@@ -264,11 +257,21 @@ window.deleteTab = async (id) => {
 };
 
 // ==========================================
-// Tab 3: Content (المحتوى)
+// Tab 3: Content
 // ==========================================
 document.getElementById('btn-show-add-post')?.addEventListener('click', () => {
     const panel = document.getElementById('add-post-panel');
-    if (panel) panel.hidden = false;
+    const form = document.getElementById('add-post-form');
+    document.getElementById('form-panel-title').textContent = 'إنشاء محتوى جديد';
+    if (form) {
+        form.reset();
+        document.getElementById('edit-post-id').value = '';
+        document.getElementById('dynamic-fields-container').style.display = 'none';
+    }
+    if (panel) {
+        panel.hidden = false;
+        panel.scrollIntoView({ behavior: 'smooth' });
+    }
 });
 
 document.getElementById('btn-cancel-post')?.addEventListener('click', () => {
@@ -281,45 +284,142 @@ document.getElementById('btn-cancel-post')?.addEventListener('click', () => {
 function updatePostTabSelect() {
     const select = document.getElementById('post-tab');
     if (!select) return;
+    const currentValue = select.value;
     select.innerHTML = '<option value="" disabled selected>اختر التاب...</option>';
     dashboardState.tabs.filter(t => t.isActive).forEach(tab => {
         select.innerHTML += `<option value="${tab.id}">${escapeHtml(tab.name)}</option>`;
     });
+    if(currentValue) select.value = currentValue;
 }
+
+window.handleTabChange = () => {
+    const tabId = document.getElementById('post-tab').value;
+    const tab = dashboardState.tabs.find(t => t.id === tabId);
+    if(!tab) return;
+    
+    const tabName = tab.name.trim();
+    document.getElementById('dynamic-fields-container').style.display = 'block';
+    
+    const show = (id) => { const el = document.getElementById(id); if (el) el.style.display = 'block'; };
+    const hide = (id) => { const el = document.getElementById(id); if (el) el.style.display = 'none'; };
+    const flex = (id) => { const el = document.getElementById(id); if (el) el.style.display = 'grid'; };
+    
+    hide('field-image-wrap');
+    hide('field-link-wrap');
+    hide('field-contact-wrap');
+    hide('field-phone-wrap');
+    hide('field-whatsapp-wrap');
+    hide('field-dell-wrap');
+    
+    const lblTitle = document.getElementById('label-title');
+    const lblBody = document.getElementById('label-body');
+
+    lblTitle.textContent = 'العنوان';
+    lblBody.textContent = 'التفاصيل / المحتوى';
+
+    if (tabName.includes('ويندوز') || tabName.includes('سيرفرات') || tabName.includes('السيرفرات')) {
+        lblTitle.textContent = 'اسم النسخة';
+        lblBody.textContent = 'تفاصيل النسخة';
+        show('field-link-wrap');
+        show('field-image-wrap');
+    } else if (tabName.includes('مشاكل وحلول')) {
+        lblTitle.textContent = 'اسم المشكلة';
+        lblBody.textContent = 'نص المشكلة (يمكنك إضافة روابط صور وفيديو)';
+    } else if (tabName.includes('مهندسين')) {
+        lblTitle.textContent = 'اسم المهندس';
+        lblBody.textContent = 'معلومات عنه';
+        show('field-image-wrap');
+        flex('field-contact-wrap');
+        show('field-phone-wrap');
+        show('field-whatsapp-wrap');
+    } else if (tabName === 'البرامج') {
+        lblTitle.textContent = 'اسم البرنامج';
+        lblBody.textContent = 'معلومات عنه';
+        show('field-image-wrap');
+        show('field-link-wrap');
+    } else if (tabName.includes('موثوقين') || tabName.includes('شحن')) {
+        lblTitle.textContent = 'اسم الشخص';
+        lblBody.textContent = 'معلومات عنه';
+        show('field-image-wrap');
+        flex('field-contact-wrap');
+        show('field-phone-wrap');
+        show('field-whatsapp-wrap');
+    } else if (tabName.includes('تعريفات')) {
+        lblTitle.textContent = 'اسم البرنامج / التعريف';
+        lblBody.textContent = 'معلومات عنه';
+        show('field-link-wrap');
+        show('field-dell-wrap');
+    } else {
+        show('field-image-wrap');
+        show('field-link-wrap');
+    }
+};
 
 document.getElementById('add-post-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const title = document.getElementById('post-title').value.trim();
+    const editId = document.getElementById('edit-post-id').value;
     const tabId = document.getElementById('post-tab').value;
-    const imageUrl = document.getElementById('post-image-url').value.trim();
-    const body = document.getElementById('post-body').value.trim();
-    const isActive = document.getElementById('post-status-active').checked;
     
-    if (!title || !tabId || !body) {
+    const postData = {
+        tabId,
+        title: document.getElementById('post-title').value.trim(),
+        body: document.getElementById('post-body').value.trim(),
+        imageUrl: document.getElementById('post-image-url').value.trim() || null,
+        link: document.getElementById('post-link').value.trim() || null,
+        phone: document.getElementById('post-phone').value.trim() || null,
+        whatsapp: document.getElementById('post-whatsapp').value.trim() || null,
+        dellDriver: document.getElementById('post-dell').value.trim() || null,
+        isActive: true // النشر الفوري مفعل بشكل دائم بدون زر
+    };
+    
+    if (!postData.title || !postData.tabId || !postData.body) {
         showToast('برجاء إكمال البيانات المطلوبة', 'error');
         return;
     }
 
-    const newPost = {
-        title,
-        tabId,
-        imageUrl,
-        body,
-        isActive,
-        views: 0,
-        authorId: dashboardState.user.uid,
-        authorName: dashboardState.profile?.name || 'الإدارة',
-        createdAt: firebase.database.ServerValue.TIMESTAMP
-    };
-
-    await dashboardDb.ref('posts').push(newPost);
-    await logActivity('نشر محتوى', `تم إضافة منشور جديد: ${title}`);
+    if (editId) {
+        await dashboardDb.ref(`posts/${editId}`).update(postData);
+        await logActivity('تعديل محتوى', `تم تعديل منشور: ${postData.title}`);
+        showToast('تم تعديل المحتوى بنجاح');
+    } else {
+        postData.views = 0;
+        postData.authorId = dashboardState.user.uid;
+        postData.authorName = dashboardState.profile?.name || 'الإدارة';
+        postData.createdAt = firebase.database.ServerValue.TIMESTAMP;
+        
+        await dashboardDb.ref('posts').push(postData);
+        await logActivity('نشر محتوى', `تم إضافة منشور جديد: ${postData.title}`);
+        showToast('تم حفظ ونشر المحتوى بنجاح');
+    }
     
-    showToast('تم حفظ ونشر المحتوى بنجاح');
     e.target.reset();
+    document.getElementById('edit-post-id').value = '';
     document.getElementById('add-post-panel').hidden = true;
 });
+
+window.editPost = (id) => {
+    const post = dashboardState.posts.find(p => p.id === id);
+    if (!post) return;
+
+    const panel = document.getElementById('add-post-panel');
+    document.getElementById('form-panel-title').textContent = 'تعديل المحتوى';
+    document.getElementById('edit-post-id').value = post.id;
+    
+    document.getElementById('post-tab').value = post.tabId;
+    window.handleTabChange();
+    
+    document.getElementById('post-title').value = post.title || '';
+    document.getElementById('post-body').value = post.body || '';
+    document.getElementById('post-image-url').value = post.imageUrl || '';
+    document.getElementById('post-link').value = post.link || '';
+    document.getElementById('post-phone').value = post.phone || '';
+    document.getElementById('post-whatsapp').value = post.whatsapp || '';
+    document.getElementById('post-dell').value = post.dellDriver || '';
+
+    panel.hidden = false;
+    panel.scrollIntoView({ behavior: 'smooth' });
+};
 
 function renderPosts(filter = '') {
     const list = document.getElementById('content-list');
@@ -339,7 +439,8 @@ function renderPosts(filter = '') {
                 <td><span class="status-badge ${post.isActive ? 'status-active' : 'status-banned'}">${post.isActive ? 'منشور' : 'مخفي'}</span></td>
                 <td>
                     <div class="table-actions">
-                        <button class="action-btn edit" onclick="togglePost('${post.id}')" title="${post.isActive ? 'إخفاء' : 'إظهار'}"><i class="fa-solid ${post.isActive ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
+                        <button class="action-btn edit" onclick="editPost('${post.id}')" title="تعديل"><i class="fa-solid fa-pen"></i></button>
+                        <button class="action-btn view" onclick="togglePost('${post.id}')" title="${post.isActive ? 'إخفاء' : 'إظهار'}"><i class="fa-solid ${post.isActive ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
                         <button class="action-btn delete" onclick="deletePost('${post.id}')" title="حذف"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </td>
@@ -365,7 +466,6 @@ window.deletePost = async (id) => {
     await logActivity('حذف محتوى', `تم حذف منشور: ${post.title}`);
     showToast('تم حذف المنشور بنجاح');
 };
-
 
 // ==========================================
 // Tab 4: Employees
@@ -717,9 +817,8 @@ if (elements.sidebar) {
     });
 }
 
-// حل مشكلة الرمشة وتوجيه الجلسة
 dashboardAuth.onAuthStateChanged(async (user) => {
-    if (elements.authLoader) elements.authLoader.style.display = 'none'; // إخفاء اللودر
+    if (elements.authLoader) elements.authLoader.style.display = 'none';
 
     if (!user) {
         if (elements.loginScreen) elements.loginScreen.hidden = false;
