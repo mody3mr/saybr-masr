@@ -9,31 +9,243 @@
 </head>
 <body>
     <div id="toast-container" class="toast-container"></div>
+    
     <header class="top-header">
         <div class="header-right">
             <button id="menu-toggle" type="button" onclick="toggleSidebar()" aria-label="فتح أو إغلاق القائمة"><i class="fas fa-bars"></i></button>
-            <div class="top-links"><a href="main.html">الرئيسية</a><a href="AboutUs.html">من نحن</a><a href="ContactUs.html">تواصل معنا</a></div>
+            <div class="top-links">
+                <a href="main.html">الرئيسية</a>
+                <a href="AboutUs.html">من نحن</a>
+                <a href="ContactUs.html">تواصل معنا</a>
+            </div>
         </div>
-        <div class="header-search"><i class="fas fa-search"></i><input type="text" id="global-search" placeholder="ابحث في جميع المواضيع والأقسام..." onkeyup="handleGlobalSearch(event)"></div>
+        <div class="header-search">
+            <i class="fas fa-search"></i>
+            <input type="text" id="global-search" placeholder="ابحث في جميع المواضيع والأقسام..." onkeyup="handleGlobalSearch(event)">
+        </div>
         <div class="header-left">
-            <div class="notification-bell" onclick="toggleNotifications()"><i class="fas fa-bell"></i><span class="badge" id="noti-count">0</span><div class="dropdown-menu" id="noti-dropdown" style="width: 280px; left: -100px;"><div class="noti-header">آخر الإشعارات</div><div id="noti-list" class="noti-list"><div class="empty-message">جاري تحميل الإشعارات...</div></div></div></div>
-            <div class="user-profile" onclick="toggleDropdown()"><span id="display-username">جاري التحميل...</span><i class="fas fa-user-circle"></i><div class="dropdown-menu" id="user-dropdown"><a href="settings.html"><i class="fas fa-cog"></i> الإعدادات</a><a href="#" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> تسجيل خروج</a></div></div>
+            <div class="notification-bell" onclick="toggleNotifications()">
+                <i class="fas fa-bell"></i>
+                <span class="badge" id="noti-count">0</span>
+                <div class="dropdown-menu" id="noti-dropdown" style="width: 280px; left: -100px;">
+                    <div class="noti-header">آخر الإشعارات</div>
+                    <div id="noti-list" class="noti-list"><div class="empty-message">جاري تحميل الإشعارات...</div></div>
+                </div>
+            </div>
+            <div class="user-profile" onclick="toggleDropdown()">
+                <span id="display-username">جاري التحميل...</span>
+                <i class="fas fa-user-circle"></i>
+                <div class="dropdown-menu" id="user-dropdown">
+                    <a href="settings.html"><i class="fas fa-cog"></i> الإعدادات</a>
+                    <a href="#" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> تسجيل خروج</a>
+                </div>
+            </div>
         </div>
     </header>
-    <nav id="sidebar" class="sidebar"><ul id="dynamic-tabs"><li><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</li></ul></nav>
-    <main class="content-area"><section id="publish-page" class="publish-page">
-        <div class="page-heading"><h1><i class="fas fa-paper-plane"></i> طلب نشر بيانات</h1><p>اكتب المحتوى الذي تريد مشاركته، وسيقوم الأدمن بمراجعته قبل ظهوره على المنصة.</p></div>
-        <div class="publisher-strip"><span><i class="fas fa-user"></i> الناشر: <strong id="publishAuthorName">جاري التحميل...</strong></span><span><i class="fas fa-id-badge"></i> الصفة: <strong id="publishAuthorRole">جاري التحميل...</strong></span></div>
-        <section class="settings-card"><form class="settings-form" onsubmit="event.preventDefault(); submitPublishRequest();">
-            <label for="publishCategory">القسم<select id="publishCategory" required><option value="general">عام</option></select></label>
-            <label for="publishTitle">العنوان<input type="text" id="publishTitle" maxlength="140" placeholder="اكتب عنوان المحتوى" required></label>
-            <label for="publishBody">المحتوى<textarea id="publishBody" maxlength="10000" placeholder="اكتب البيانات أو الشرح الذي تريد نشره" required></textarea></label>
-            <label for="publishNotes">ملاحظات للأدمن<textarea id="publishNotes" maxlength="1000" placeholder="أي تفاصيل إضافية عن الطلب (اختياري)"></textarea></label>
-            <button id="submit-publish-button" class="settings-button" type="submit"><i class="fas fa-paper-plane"></i> إرسال للمراجعة</button>
-        </form></section>
-        <div class="publish-warning"><i class="fas fa-shield-halved"></i><span>لن يتم نشر أي طلب مباشرة. المحتوى يصبح متاحاً للأعضاء فقط بعد موافقة الأدمن.</span></div>
-    </section></main>
-    <footer><div id="dynamic-footer-content" class="dynamic-footer"></div><div class="copyright">تم الانشاء بواسطة <a href="https://wa.me/201094264206" target="_blank" class="dev-link">محمد عمرو ابراهيم</a> © 2026</div></footer>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script><script src="app.js?v=13"></script>
+    
+    <nav id="sidebar" class="sidebar">
+        <ul id="dynamic-tabs"><li><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</li></ul>
+    </nav>
+    
+    <main class="content-area">
+        <section id="publish-page" class="publish-page">
+            <div class="page-heading">
+                <h1><i class="fas fa-paper-plane"></i> طلب نشر بيانات</h1>
+                <p>اكتب المحتوى الذي تريد مشاركته، وسيقوم الأدمن بمراجعته قبل ظهوره على المنصة.</p>
+            </div>
+            
+            <div class="publisher-strip">
+                <span><i class="fas fa-user"></i> الناشر: <strong id="publishAuthorName">جاري التحميل...</strong></span>
+                <span><i class="fas fa-id-badge"></i> الصفة: <strong id="publishAuthorRole">جاري التحميل...</strong></span>
+            </div>
+            
+            <section class="settings-card">
+                <form class="settings-form" id="publish-form" onsubmit="event.preventDefault(); submitAdvancedPublishRequest();">
+                    <label for="publishCategory">القسم
+                        <select id="publishCategory" required onchange="handlePublishTabChange()">
+                            <option value="" disabled selected>جاري تحميل الأقسام...</option>
+                        </select>
+                    </label>
+
+                    <!-- الحاويات الديناميكية التي ستتغير حسب القسم -->
+                    <div id="dynamic-publish-fields" style="display:none; margin-top:15px; width: 100%;">
+                        
+                        <label id="publish-label-title" for="publishTitle">العنوان</label>
+                        <input type="text" id="publishTitle" maxlength="140" placeholder="اكتب العنوان" required style="margin-bottom: 15px;">
+
+                        <div id="publish-field-image" style="display:none; margin-bottom: 15px;">
+                            <label>رابط الصورة (اختياري)</label>
+                            <input type="url" id="publishImage" placeholder="https://example.com/image.jpg">
+                        </div>
+
+                        <div id="publish-field-link" style="display:none; margin-bottom: 15px;">
+                            <label>رابط التحميل / الموقع</label>
+                            <input type="url" id="publishLink" placeholder="أدخل الرابط هنا...">
+                        </div>
+
+                        <div id="publish-field-contact" style="display:none; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+                            <div style="flex:1; min-width: 200px;">
+                                <label>رقم الهاتف للتواصل</label>
+                                <input type="tel" id="publishPhone" placeholder="مثال: 010...">
+                            </div>
+                            <div style="flex:1; min-width: 200px;">
+                                <label>رقم الواتساب</label>
+                                <input type="tel" id="publishWhatsapp" placeholder="مثال: 010...">
+                            </div>
+                        </div>
+
+                        <div id="publish-field-dell" style="display:none; margin-bottom: 15px;">
+                            <label>رابط تعريف شركة ديل (اختياري)</label>
+                            <input type="url" id="publishDell" placeholder="رابط التعريف...">
+                        </div>
+
+                        <label id="publish-label-body" for="publishBody">المحتوى والتفاصيل</label>
+                        <textarea id="publishBody" maxlength="10000" placeholder="اكتب البيانات أو الشرح بالتفصيل..." required style="margin-bottom: 15px;"></textarea>
+
+                        <label for="publishNotes">ملاحظات للأدمن (اختياري)
+                            <textarea id="publishNotes" maxlength="1000" placeholder="أي تفاصيل إضافية تريد إخبارها للأدمن عن الطلب (لن تظهر للأعضاء)"></textarea>
+                        </label>
+                    </div>
+
+                    <button id="submit-publish-button" class="settings-button" type="submit" style="margin-top: 15px;">
+                        <i class="fas fa-paper-plane"></i> إرسال للمراجعة
+                    </button>
+                </form>
+            </section>
+            
+            <div class="publish-warning">
+                <i class="fas fa-shield-halved"></i>
+                <span>لن يتم نشر أي طلب مباشرة. المحتوى يصبح متاحاً للأعضاء فقط بعد موافقة الأدمن من لوحة التحكم.</span>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div id="dynamic-footer-content" class="dynamic-footer"></div>
+        <div class="copyright">تم الانشاء بواسطة <a href="https://wa.me/201094264206" target="_blank" class="dev-link">محمد عمرو ابراهيم</a> © 2026</div>
+    </footer>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="app.js?v=14"></script>
+    
+    <!-- السكريبت الخاص بإدارة حقول النشر الديناميكية -->
+    <script>
+        function handlePublishTabChange() {
+            const select = document.getElementById('publishCategory');
+            const selectedOption = select.options[select.selectedIndex];
+            const tabName = selectedOption.dataset.name || '';
+            
+            if(!tabName) return;
+            
+            document.getElementById('dynamic-publish-fields').style.display = 'block';
+            
+            const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'block'; };
+            const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
+            const flex = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'flex'; };
+            
+            hide('publish-field-image');
+            hide('publish-field-link');
+            hide('publish-field-contact');
+            hide('publish-field-dell');
+            
+            const lblTitle = document.getElementById('publish-label-title');
+            const lblBody = document.getElementById('publish-label-body');
+
+            lblTitle.textContent = 'العنوان';
+            lblBody.textContent = 'التفاصيل / المحتوى';
+
+            if (tabName.includes('ويندوز') || tabName.includes('سيرفرات') || tabName.includes('السيرفرات')) {
+                lblTitle.textContent = 'اسم النسخة';
+                lblBody.textContent = 'تفاصيل النسخة';
+                show('publish-field-link');
+                show('publish-field-image');
+            } else if (tabName.includes('مشاكل') || tabName.includes('حلول')) {
+                lblTitle.textContent = 'اسم المشكلة';
+                lblBody.textContent = 'نص المشكلة (يمكنك إضافة روابط فيديو)';
+            } else if (tabName.includes('مهندس') || tabName.includes('موثوقين') || tabName.includes('شحن')) {
+                lblTitle.textContent = 'الاسم';
+                lblBody.textContent = 'معلومات والتفاصيل';
+                show('publish-field-image');
+                flex('publish-field-contact');
+            } else if (tabName === 'البرامج') {
+                lblTitle.textContent = 'اسم البرنامج';
+                lblBody.textContent = 'معلومات عنه';
+                show('publish-field-image');
+                show('publish-field-link');
+            } else if (tabName.includes('تعريفات')) {
+                lblTitle.textContent = 'اسم البرنامج / التعريف';
+                lblBody.textContent = 'معلومات عنه';
+                show('publish-field-link');
+                show('publish-field-dell');
+            } else {
+                show('publish-field-image');
+                show('publish-field-link');
+            }
+        }
+
+        function submitAdvancedPublishRequest() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const categorySelect = document.getElementById('publishCategory');
+            const titleInput = document.getElementById('publishTitle');
+            const bodyInput = document.getElementById('publishBody');
+            const submitButton = document.getElementById('submit-publish-button');
+
+            const title = titleInput.value.trim();
+            const body = bodyInput.value.trim();
+            const tabId = categorySelect.value;
+
+            if (!title || !body || !tabId) {
+                showToast('اكتب عنوان ومحتوى الطلب واختر القسم قبل الإرسال.', 'error');
+                return;
+            }
+
+            const selectedCategory = categorySelect.options[categorySelect.selectedIndex];
+            const originalText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري إرسال الطلب...';
+
+            db.ref('users/' + user.uid).once('value')
+                .then((snapshot) => {
+                    const userData = snapshot.val() || {};
+                    const requestRef = db.ref('publishRequests').push();
+                    return requestRef.set({
+                        title: title,
+                        body: body,
+                        imageUrl: document.getElementById('publishImage')?.value.trim() || null,
+                        link: document.getElementById('publishLink')?.value.trim() || null,
+                        phone: document.getElementById('publishPhone')?.value.trim() || null,
+                        whatsapp: document.getElementById('publishWhatsapp')?.value.trim() || null,
+                        dellDriver: document.getElementById('publishDell')?.value.trim() || null,
+                        notes: document.getElementById('publishNotes')?.value.trim() || '',
+                        tabId: tabId,
+                        tabName: selectedCategory ? (selectedCategory.dataset.name || selectedCategory.textContent) : 'عام',
+                        authorId: user.uid,
+                        authorName: userData.name || user.displayName || 'المستخدم',
+                        authorRole: userData.role || 'user',
+                        status: 'pending',
+                        createdAt: firebase.database.ServerValue.TIMESTAMP,
+                        createdAtISO: new Date().toISOString()
+                    });
+                })
+                .then(() => {
+                    showToast('تم إرسال طلبك للمراجعة بنجاح.', 'success');
+                    document.getElementById('publish-form').reset();
+                    document.getElementById('dynamic-publish-fields').style.display = 'none';
+                    categorySelect.value = '';
+                })
+                .catch((error) => {
+                    console.error('Publish request failed:', error);
+                    showToast('تعذر إرسال الطلب. تحقق من اتصالك.', 'error');
+                })
+                .finally(() => {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalText;
+                });
+        }
+    </script>
 </body>
 </html>
