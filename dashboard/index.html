@@ -104,7 +104,7 @@
                     <span>الإعدادات</span>
                 </button>
 
-                <!-- الحاوية للتابات المضافة ديناميكياً -->
+                <!-- الحاوية للتابات المضافة ديناميكياً (مخفية بناء على طلبك) -->
                 <div id="dynamic-sidebar-tabs"></div>
 
                 <div class="sidebar-footer">بوابة مستقلة للإدارة</div>
@@ -140,12 +140,12 @@
                     </div>
                 </section>
 
-                <!-- 2. تاب إضافة تابات (تم دمج فكرة الأقسام هنا) -->
+                <!-- 2. تاب إضافة تابات -->
                 <section id="dynamic-tabs-section" class="dashboard-section" hidden>
                     <div class="section-heading">
                         <div>
                             <h1>إدارة التابات</h1>
-                            <p>إضافة تابات للقائمة الجانبية لتنظيم ونشر المحتوى بداخلها.</p>
+                            <p>إضافة تابات لتنظيم ونشر المحتوى بداخلها.</p>
                         </div>
                     </div>
                     <div class="dashboard-panel p-20">
@@ -178,42 +178,71 @@
                         </button>
                     </div>
 
-                    <!-- فورم إضافة محتوى (مخفي افتراضياً) -->
+                    <!-- فورم إضافة وتعديل المحتوى -->
                     <div id="add-post-panel" class="dashboard-panel p-20 mb-20" hidden>
                         <div class="flex-between mb-20">
-                            <h2>إنشاء محتوى جديد</h2>
+                            <h2 id="form-panel-title">إنشاء محتوى جديد</h2>
                             <button class="icon-button" id="btn-cancel-post"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                         <form id="add-post-form" class="dashboard-form">
-                            <div class="grid-form">
-                                <div>
-                                    <label>عنوان المحتوى</label>
-                                    <div class="input-wrap"><input type="text" id="post-title" placeholder="أدخل عنوان المنشور..." required></div>
+                            <input type="hidden" id="edit-post-id" value="">
+                    
+                            <div>
+                                <label>القسم (التاب)</label>
+                                <div class="input-wrap">
+                                    <select id="post-tab" class="dashboard-select" required onchange="handleTabChange()">
+                                        <option value="" disabled selected>جاري تحميل التابات...</option>
+                                    </select>
                                 </div>
-                                <div>
-                                    <label>التاب التابع له</label>
+                            </div>
+                    
+                            <div id="dynamic-fields-container" style="display:none; margin-top:15px;">
+                                <!-- العنوان -->
+                                <div id="field-title-wrap">
+                                    <label id="label-title">العنوان</label>
+                                    <div class="input-wrap"><input type="text" id="post-title" required></div>
+                                </div>
+                                
+                                <!-- الصورة -->
+                                <div id="field-image-wrap" class="mt-10">
+                                    <label>رابط الصورة</label>
+                                    <div class="input-wrap"><input type="url" id="post-image-url" placeholder="https://example.com/image.jpg"></div>
+                                </div>
+                    
+                                <!-- رابط التحميل -->
+                                <div id="field-link-wrap" class="mt-10">
+                                    <label>رابط التحميل / النسخة</label>
+                                    <div class="input-wrap"><input type="url" id="post-link" placeholder="أدخل الرابط هنا..."></div>
+                                </div>
+                    
+                                <!-- أرقام التواصل -->
+                                <div class="grid-form mt-10" id="field-contact-wrap">
+                                    <div id="field-phone-wrap">
+                                        <label>رقم الهاتف</label>
+                                        <div class="input-wrap"><input type="tel" id="post-phone" placeholder="مثال: 010..."></div>
+                                    </div>
+                                    <div id="field-whatsapp-wrap">
+                                        <label>رقم الواتساب</label>
+                                        <div class="input-wrap"><input type="tel" id="post-whatsapp" placeholder="مثال: 010..."></div>
+                                    </div>
+                                </div>
+                    
+                                <!-- تعريف ديل -->
+                                <div id="field-dell-wrap" class="mt-10">
+                                    <label>رابط تعريف شركة ديل (اختياري)</label>
+                                    <div class="input-wrap"><input type="url" id="post-dell" placeholder="رابط التعريف..."></div>
+                                </div>
+                    
+                                <!-- التفاصيل -->
+                                <div id="field-body-wrap" class="mt-10">
+                                    <label id="label-body">التفاصيل / المحتوى</label>
                                     <div class="input-wrap">
-                                        <select id="post-tab" class="dashboard-select" required>
-                                            <option value="" disabled selected>جاري تحميل التابات...</option>
-                                        </select>
+                                        <textarea id="post-body" rows="6" placeholder="اكتب التفاصيل هنا (يدعم روابط يوتيوب والصور)..." required></textarea>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <label class="mt-10">رابط صورة الغلاف (اختياري)</label>
-                            <div class="input-wrap"><input type="url" id="post-image-url" placeholder="https://example.com/image.jpg"></div>
-
-                            <label class="mt-10">تفاصيل المحتوى</label>
-                            <div class="input-wrap">
-                                <textarea id="post-body" rows="6" placeholder="اكتب محتوى المنشور هنا..." required></textarea>
-                            </div>
-
-                            <div class="toggle-setting flex-between mt-20 mb-20">
-                                <strong>تفعيل النشر الفوري (مرئي للأعضاء)</strong>
-                                <label class="switch"><input type="checkbox" id="post-status-active" checked><span class="slider round"></span></label>
-                            </div>
-
-                            <button class="primary-button full-width" type="submit"><i class="fa-solid fa-paper-plane"></i> حفظ ونشر المحتوى</button>
+                    
+                            <button class="primary-button full-width mt-20" type="submit"><i class="fa-solid fa-paper-plane"></i> حفظ المحتوى</button>
                         </form>
                     </div>
 
